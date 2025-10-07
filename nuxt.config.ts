@@ -24,7 +24,11 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api',
+      // In production (static), use relative API URL since frontend is served from backend
+      // In development, use full URL for dev proxy
+      apiBase: process.env.NODE_ENV === 'production'
+        ? '/api'
+        : (process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api'),
       apiKey: process.env.NUXT_PUBLIC_API_KEY || 'api'
     }
   },

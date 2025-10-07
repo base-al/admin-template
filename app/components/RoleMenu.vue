@@ -10,82 +10,64 @@ const authorizationStore = useAuthorizationStore()
 const router = useRouter()
 const { selectedDashboard, setSelectedDashboard, getCurrentRoleName } = useDashboardState()
 
-// Define all available role dashboards based on ISP roles
-const roleDashboards = [
-  {
-    label: 'Super Admin Dashboard',
-    role: 'Super Admin',
-    icon: 'i-lucide-crown',
-    description: 'Full system access - ISP owner/founder level',
-    route: '/app/dashboard'
-  },
-  {
-    label: 'Administrator Dashboard', 
-    role: 'Administrator',
-    icon: 'i-lucide-shield',
-    description: 'System administration and user management',
-    route: '/app/dashboard'
-  },
-  {
-    label: 'Manager Dashboard',
-    role: 'Manager', 
-    icon: 'i-lucide-briefcase',
-    description: 'Management oversight with business analytics',
-    route: '/app/dashboard'
-  },
-  {
-    label: 'Financial Manager Dashboard',
-    role: 'Financial Manager',
-    icon: 'i-lucide-dollar-sign',
-    description: 'Financial dashboard, billing, invoicing',
-    route: '/app/dashboard'
-  },
-  {
-    label: 'Sales Representative Dashboard',
-    role: 'Sales Representative',
-    icon: 'i-lucide-trending-up',
-    description: 'Sales dashboard, customer acquisition',
-    route: '/app/dashboard'
-  },
-  {
-    label: 'Technical Specialist Dashboard',
-    role: 'Technical Specialist',
-    icon: 'i-lucide-settings',
-    description: 'Network operations, OLT/ONT management',
-    route: '/app/dashboard'
-  },
-  {
-    label: 'Support Agent Dashboard',
-    role: 'Support Agent',
-    icon: 'i-lucide-headphones',
-    description: 'Customer support tickets and service requests',
-    route: '/app/dashboard'
-  },
-  {
-    label: 'Viewer Dashboard',
-    role: 'Viewer',
-    icon: 'i-lucide-eye',
-    description: 'Read-only access for monitoring',
-    route: '/app/dashboard'
+// Role icon mapping - defaults for system roles and common patterns
+const getRoleIcon = (roleName: string): string => {
+  const iconMap: Record<string, string> = {
+    'Super Admin': 'i-lucide-crown',
+    'Administrator': 'i-lucide-shield',
+    'Manager': 'i-lucide-briefcase',
+    'Employee': 'i-lucide-user',
+    'Viewer': 'i-lucide-eye',
+    // Add more default patterns based on common role names
+    'Support': 'i-lucide-headphones',
+    'Sales': 'i-lucide-trending-up',
+    'Finance': 'i-lucide-dollar-sign',
+    'Technical': 'i-lucide-wrench',
   }
-]
+
+  // Try exact match
+  if (iconMap[roleName]) return iconMap[roleName]
+
+  // Try partial match (case insensitive)
+  const lowerName = roleName.toLowerCase()
+  for (const [key, icon] of Object.entries(iconMap)) {
+    if (lowerName.includes(key.toLowerCase())) {
+      return icon
+    }
+  }
+
+  // Default icon for custom roles
+  return 'i-lucide-circle-user'
+}
+
+// Get all available roles dynamically from the store
+const availableRoles = computed(() => {
+  return authorizationStore.roles.map(role => ({
+    label: `${role.name} Dashboard`,
+    role: role.name,
+    icon: getRoleIcon(role.name),
+    description: role.description || `${role.name} access`,
+    route: '/app/dashboard',
+    isSystem: role.is_system
+  }))
+})
 
 
 // Determine if current user is admin (Super Admin or Administrator)
 const isAdminRole = computed(() => {
   const userRoleName = getCurrentRoleName()
-  return userRoleName === 'Super Admin' || userRoleName === 'Administrator' || userRoleName === 'Owner'
+  return userRoleName === 'Super Admin' || userRoleName === 'Administrator'
 })
 
 // Get available dashboards based on role
 const availableDashboards = computed(() => {
   if (isAdminRole.value) {
     // Admin roles can access all dashboards
-    return roleDashboards
+    return availableRoles.value
   } else {
     // Non-admin roles only see their specific dashboard
     const userRoleName = getCurrentRoleName()
-    return roleDashboards.filter(dashboard => dashboard.role === userRoleName)
+    return availableRoles.value.filter(dashboard => dashboard.role === userRoleName)
   }
 })
 
@@ -106,11 +88,11 @@ const getCurrentSelectedDashboard = computed(() => {
 })
 
 // Navigate to dashboard (only for admin roles)
-const navigateToDashboard = (dashboard: typeof roleDashboards[0]) => {
+const navigateToDashboard = (dashboard: { role: string, route: string }) => {
   if (isAdminRole.value) {
     // Use the composable to update dashboard state
     setSelectedDashboard(dashboard.role)
-    
+
     // Navigate to dashboard (will show the selected component)
     router.push(dashboard.route)
   }

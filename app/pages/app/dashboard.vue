@@ -23,86 +23,46 @@ const currentRoleName = computed(() => getCurrentRoleName())
 // All roles use the same AdminDashboard component
 const AdminDashboard = defineAsyncComponent(() => import('~/components/dashboard/AdminDashboard.vue'))
 
-// Role-specific quick actions
-const getQuickActions = (roleName: string): DropdownMenuItem[][] => {
-  const actions: Record<string, DropdownMenuItem[][]> = {
-    'Super Admin': [[{
-      label: 'New employee',
-      icon: 'i-lucide-users',
-      to: '/app/employees/new'
-    }, {
-      label: 'View reports',
-      icon: 'i-lucide-bar-chart',
-      to: '/app/reports'
-    }]],
-    'Administrator': [[{
-      label: 'New employee',
-      icon: 'i-lucide-users',
-      to: '/app/employees/new'
-    }, {
-      label: 'View reports',
-      icon: 'i-lucide-bar-chart',
-      to: '/app/reports'
-    }]],
-    'Owner': [[{
-      label: 'New employee',
-      icon: 'i-lucide-users',
-      to: '/app/employees/new'
-    }, {
-      label: 'View reports',
-      icon: 'i-lucide-bar-chart',
-      to: '/app/reports'
-    }]],
-    'Manager': [[{
-      label: 'Team review',
-      icon: 'i-lucide-user-check',
-      to: '/app/employees'
-    }, {
-      label: 'View reports',
-      icon: 'i-lucide-bar-chart',
-      to: '/app/reports'
-    }]],
-    'Financial Manager': [[{
-      label: 'Team review',
-      icon: 'i-lucide-user-check',
-      to: '/app/employees'
-    }, {
-      label: 'View reports',
-      icon: 'i-lucide-bar-chart',
-      to: '/app/reports'
-    }]],
-    'Technical Specialist': [[{
-      label: 'Team review',
-      icon: 'i-lucide-user-check',
-      to: '/app/employees'
-    }, {
-      label: 'View reports',
-      icon: 'i-lucide-bar-chart',
-      to: '/app/reports'
-    }]],
-    'Support Agent': [[{
-      label: 'Team review',
-      icon: 'i-lucide-user-check',
-      to: '/app/employees'
-    }, {
-      label: 'View reports',
-      icon: 'i-lucide-bar-chart',
-      to: '/app/reports'
-    }]],
-    'Sales Representative': [[{
-      label: 'Team review',
-      icon: 'i-lucide-user-check',
-      to: '/app/employees'
-    }, {
-      label: 'View reports',
-      icon: 'i-lucide-bar-chart',
-      to: '/app/reports'
-    }]]
-  }
-  return actions[roleName] ?? actions['Super Admin'] ?? []
-}
+// Permission-based quick actions - shows actions based on user permissions
+const authorizationStore = useAuthorizationStore()
 
-const items = computed(() => getQuickActions(currentRoleName.value))
+const items = computed<DropdownMenuItem[][]>(() => {
+  const actions: DropdownMenuItem[] = []
+
+  // Check permissions dynamically and build menu
+  if (authorizationStore.hasPermission('employee', 'create')) {
+    actions.push({
+      label: 'New employee',
+      icon: 'i-lucide-users',
+      to: '/app/employees'
+    })
+  }
+
+  if (authorizationStore.hasPermission('role', 'create') || authorizationStore.hasPermission('role', 'manage')) {
+    actions.push({
+      label: 'Manage roles',
+      icon: 'i-lucide-shield',
+      to: '/app/roles'
+    })
+  }
+
+  if (authorizationStore.hasPermission('user', 'list')) {
+    actions.push({
+      label: 'User management',
+      icon: 'i-lucide-user-cog',
+      to: '/app/users'
+    })
+  }
+
+  // Always show profile - available to all authenticated users
+  actions.push({
+    label: 'My profile',
+    icon: 'i-lucide-user',
+    to: '/app/profile'
+  })
+
+  return actions.length > 0 ? [actions] : []
+})
 
 const range = shallowRef<Range>({
   start: sub(new Date(), { days: 14 }),
