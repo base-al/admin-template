@@ -24,7 +24,8 @@ export const useActivitiesStore = defineStore('activities', {
       this.error = null
 
       try {
-        const response = await $fetch<Activity[]>(`/api/activities/recent?limit=${limit}`)
+        const api = useApi()
+        const response = await api.get<Activity[]>(`/api/activities/recent?limit=${limit}`)
         this.activities = response
       } catch (error: any) {
         this.error = error.message || 'Failed to fetch recent activities'
@@ -40,7 +41,8 @@ export const useActivitiesStore = defineStore('activities', {
       this.error = null
 
       try {
-        const response = await $fetch<Activity[]>(`/api/activities?user_id=${userId}&limit=${limit}`)
+        const api = useApi()
+        const response = await api.get<Activity[]>(`/api/activities?user_id=${userId}&limit=${limit}`)
         return response
       } catch (error: any) {
         this.error = error.message || 'Failed to fetch user activities'
@@ -55,7 +57,8 @@ export const useActivitiesStore = defineStore('activities', {
       this.error = null
 
       try {
-        const response = await $fetch<Activity[]>(
+        const api = useApi()
+        const response = await api.get<Activity[]>(
           `/api/activities?entity_type=${entityType}&entity_id=${entityId}&limit=${limit}`
         )
         return response

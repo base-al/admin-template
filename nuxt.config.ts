@@ -10,8 +10,9 @@ export default defineNuxtConfig({
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US', name: 'English' },
-      { code: 'sq', iso: 'sq-AL', name: 'Shqip' },
-      { code: 'sr', iso: 'sr-RS', name: 'Српски' }
+      { code: 'de', iso: 'de-DE', name: 'Deutsch' },
+      { code: 'fr', iso: 'fr-FR', name: 'Français' },
+      { code: 'it', iso: 'it-IT', name: 'Italiano' }
     ],
     defaultLocale: 'en',
     strategy: 'prefix_except_default',
