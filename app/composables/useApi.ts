@@ -69,47 +69,14 @@ export const useApi = () => {
         await handleTokenExpired()
         throw new Error('Session expired. Please login again.')
       }
-      
-      // Check if this is a connection error and handle it globally
-      if (!options.skipErrorHandling && isConnectionError(error)) {
-        // Trigger global error handler
-        if (import.meta.client) {
-          const { $handleApiError } = useNuxtApp()
-          if ($handleApiError) {
-            $handleApiError(error)
-          }
-        }
-      }
-      
-      const errorMessage = error && typeof error === 'object' && 'data' in error 
+
+      const errorMessage = error && typeof error === 'object' && 'data' in error
         ? (error.data as { message?: string })?.message
         : error && typeof error === 'object' && 'message' in error
         ? (error as { message?: string }).message
         : 'API request failed'
       throw new Error(errorMessage)
     }
-  }
-
-  const isConnectionError = (error: unknown): boolean => {
-    if (!error) return false
-    
-    // Network/connection errors
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'FetchError') return true
-    
-    // Server errors that indicate API problems
-    if (error && typeof error === 'object' && 'statusCode' in error && typeof error.statusCode === 'number' && error.statusCode >= 500) return true
-    
-    // Connection refused, timeout, etc.
-    if (error && typeof error === 'object' && 'code' in error && typeof error.code === 'string' && ['ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ENETUNREACH'].includes(error.code)) {
-      return true
-    }
-    
-    // Error message contains connection-related keywords
-    if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string' && /connection|network|timeout|refused|unavailable|fetch/i.test(error.message)) {
-      return true
-    }
-    
-    return false
   }
 
   const isTokenExpiredError = (error: unknown): boolean => {
@@ -163,19 +130,8 @@ export const useApi = () => {
         await handleTokenExpired()
         throw new Error('Session expired. Please login again.')
       }
-      
-      // Check if this is a connection error and handle it globally
-      if (!options.skipErrorHandling && isConnectionError(error)) {
-        // Trigger global error handler
-        if (import.meta.client) {
-          const { $handleApiError } = useNuxtApp()
-          if ($handleApiError) {
-            $handleApiError(error)
-          }
-        }
-      }
-      
-      const errorMessage = error && typeof error === 'object' && 'data' in error 
+
+      const errorMessage = error && typeof error === 'object' && 'data' in error
         ? (error.data as { message?: string })?.message
         : error && typeof error === 'object' && 'message' in error
         ? (error as { message?: string }).message
