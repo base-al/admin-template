@@ -97,7 +97,7 @@
     />
 
     <!-- Preview Modal -->
-    <UModal v-model="showPreview" :ui="{ width: 'sm:max-w-2xl' }">
+    <UModal v-model:open="showPreview" :ui="{ width: 'sm:max-w-2xl' }">
       <template #header>
         Media Preview
       </template>
