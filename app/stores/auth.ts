@@ -296,14 +296,14 @@ export const useAuthStore = defineStore('auth', {
           roleId: this.roleId,
           isAuthenticated: this.isAuthenticated
         }
-        localStorage.setItem('negenet_auth', JSON.stringify(authState))
+        localStorage.setItem('base_auth', JSON.stringify(authState))
       }
     },
 
     hydrateAuthState() {
       if (typeof window !== 'undefined') {
         try {
-          const stored = localStorage.getItem('negenet_auth')
+          const stored = localStorage.getItem('base_auth')
           if (stored) {
             const authState = JSON.parse(stored)
             this.user = authState.user
@@ -326,7 +326,7 @@ export const useAuthStore = defineStore('auth', {
 
     clearPersistedState() {
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('negenet_auth')
+        localStorage.removeItem('base_auth')
       }
     },
 

@@ -47,17 +47,17 @@ export const useSettingsStore = defineStore('settings', {
       state.settings.filter(s => s.group === 'service'),
     
     // Helper getters for specific values
-    companyName: (state) => 
-      state.settings.find(s => s.setting_key === 'company_name')?.value_string || 'Negenet',
-    
-    vatRate: (state) => 
+    companyName: (state) =>
+      state.settings.find(s => s.setting_key === 'company_name')?.value_string || 'Base',
+
+    vatRate: (state) =>
       state.settings.find(s => s.setting_key === 'vat_rate')?.value_float || 0.18,
-    
-    maintenanceMode: (state) => 
+
+    maintenanceMode: (state) =>
       state.settings.find(s => s.setting_key === 'maintenance_mode')?.value_bool || false,
-    
-    invoicePrefix: (state) => 
-      state.settings.find(s => s.setting_key === 'invoice_prefix')?.value_string || 'NEG'
+
+    invoicePrefix: (state) =>
+      state.settings.find(s => s.setting_key === 'invoice_prefix')?.value_string || 'INV'
   },
 
   actions: {
