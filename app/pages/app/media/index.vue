@@ -53,58 +53,33 @@
         </div>
 
         <!-- Grid View -->
-        <div v-if="viewMode === 'grid' && !loading && mediaItems.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-          <UCard
-            v-for="item in mediaItems"
-            :key="item.id"
-            class="cursor-pointer hover:shadow-lg transition-shadow"
-            @click="handleView(item)"
-            @contextmenu.prevent="(e: MouseEvent) => showContextMenu(e, item)"
-          >
-            <div class="aspect-square flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden">
-              <img
-                v-if="item.file && isImage(item.type)"
-                :src="item.file.url"
-                :alt="item.name"
-                class="w-full h-full object-cover"
-              >
-              <video
-                v-else-if="item.file && isVideo(item.type)"
-                :src="item.file.url"
-                class="w-full h-full object-cover"
-                controls
-                preload="metadata"
-              >
-                Your browser does not support video playback.
-              </video>
-              <div
-                v-else-if="item.file && isAudio(item.type)"
-                class="w-full h-full flex items-center justify-center p-4"
-              >
-                <audio
-                  :src="item.file.url"
-                  controls
-                  class="w-full"
-                  preload="metadata"
-                >
-                  Your browser does not support audio playback.
-                </audio>
-              </div>
-              <UIcon
-                v-else
-                :name="getFileIcon(item.type)"
-                class="w-12 h-12 text-gray-400"
-              />
-            </div>
-            <div class="mt-2 space-y-1">
-              <p class="text-sm font-medium truncate">{{ item.name }}</p>
-              <p class="text-xs text-gray-500">{{ item.type }}</p>
-            </div>
-          </UCard>
-        </div>
+        <BaseGrid
+          v-if="viewMode === 'grid'"
+          :data="mediaItems"
+          :loading="loading"
+          :pagination="{
+            current_page: pagination.page,
+            per_page: pagination.limit,
+            total: pagination.total
+          }"
+          empty-icon="i-lucide-image"
+          empty-title="No media files"
+          empty-message="Upload your first file to get started"
+          @page-change="handlePageChange"
+          @per-page-change="handlePerPageChange"
+        >
+          <template #default="{ items }">
+            <MediaCard
+              v-for="item in items"
+              :key="item.id"
+              :media="item"
+              @click="handleView"
+            />
+          </template>
+        </BaseGrid>
 
         <!-- List View -->
-        <UCard v-else-if="viewMode === 'list' && !loading && mediaItems.length > 0">
+        <UCard v-else-if="viewMode === 'list'">
           <BaseTable
             :data="mediaItems"
             :columns="columns"
@@ -124,123 +99,21 @@
           />
         </UCard>
 
-        <!-- Empty State -->
-        <div v-if="!loading && mediaItems.length === 0" class="text-center py-12">
-          <UIcon name="i-lucide-image" class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No media files</h3>
-          <p class="text-gray-500 dark:text-gray-400 mb-4">
-            Upload your first file to get started
-          </p>
-          <CommonPermissionButton permission="media:create" @click="handleOpenUpload">Upload File</CommonPermissionButton>
-        </div>
-
-        <!-- Loading State -->
-        <div v-if="loading" class="flex items-center justify-center py-12">
-          <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-gray-400" />
-        </div>
-
         <!-- Upload Modal -->
         <MediaUploadModal
           v-model="showUploadModal"
           @uploaded="handleUploaded"
         />
 
-        <!-- Detail Modal -->
-        <UModal v-model="showDetailModal" :ui="{ content: 'sm:max-w-2xl' }">
-          <template #header>
-            Media Details
-          </template>
-
-          <template #body>
-            <div v-if="selectedItem" class="space-y-4">
-              <!-- Preview -->
-              <div class="aspect-video flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden">
-                <img
-                  v-if="selectedItem.file && isImage(selectedItem.type)"
-                  :src="selectedItem.file.url"
-                  :alt="selectedItem.name"
-                  class="max-w-full max-h-full object-contain"
-                >
-                <video
-                  v-else-if="selectedItem.file && isVideo(selectedItem.type)"
-                  :src="selectedItem.file.url"
-                  class="max-w-full max-h-full"
-                  controls
-                  preload="metadata"
-                >
-                  Your browser does not support video playback.
-                </video>
-                <div
-                  v-else-if="selectedItem.file && isAudio(selectedItem.type)"
-                  class="w-full flex items-center justify-center p-8"
-                >
-                  <audio
-                    :src="selectedItem.file.url"
-                    controls
-                    class="w-full max-w-md"
-                    preload="metadata"
-                  >
-                    Your browser does not support audio playback.
-                  </audio>
-                </div>
-                <UIcon
-                  v-else
-                  :name="getFileIcon(selectedItem.type)"
-                  class="w-24 h-24 text-gray-400"
-                />
-              </div>
-
-              <!-- Info -->
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="text-sm text-gray-600 dark:text-gray-400">Name</label>
-                  <p class="text-base font-medium">{{ selectedItem.name }}</p>
-                </div>
-                <div>
-                  <label class="text-sm text-gray-600 dark:text-gray-400">Type</label>
-                  <p class="text-base font-medium">{{ selectedItem.type }}</p>
-                </div>
-                <div v-if="selectedItem.file" class="col-span-2">
-                  <label class="text-sm text-gray-600 dark:text-gray-400">File URL</label>
-                  <p class="text-base font-medium break-all">{{ selectedItem.file.url }}</p>
-                </div>
-                <div v-if="selectedItem.description" class="col-span-2">
-                  <label class="text-sm text-gray-600 dark:text-gray-400">Description</label>
-                  <p class="text-base font-medium">{{ selectedItem.description }}</p>
-                </div>
-                <div>
-                  <label class="text-sm text-gray-600 dark:text-gray-400">Created</label>
-                  <p class="text-base font-medium">{{ formatDateTime(selectedItem.created_at) }}</p>
-                </div>
-                <div>
-                  <label class="text-sm text-gray-600 dark:text-gray-400">Updated</label>
-                  <p class="text-base font-medium">{{ formatDateTime(selectedItem.updated_at) }}</p>
-                </div>
-              </div>
-            </div>
-          </template>
-
-          <template #footer>
-            <div class="flex justify-end gap-2">
-              <UButton
-                color="neutral"
-                variant="outline"
-                @click="showDetailModal = false"
-              >
-                Close
-              </UButton>
-              <CommonPermissionButton
-                permission="media:delete"
-                color="error"
-                variant="outline"
-                :loading="deleting"
-                @click="handleDelete(selectedItem)"
-              >
-                Delete
-              </CommonPermissionButton>
-            </div>
-          </template>
-        </UModal>
+        <!-- Preview Slideover -->
+        <MediaSlideover
+          v-model="showDetailModal"
+          :media="selectedItem"
+          :deleting="deleting"
+          @delete="handleDelete"
+          @download="handleDownload"
+          @copy="copyToClipboard"
+        />
 
         <!-- Delete Confirmation Modal -->
         <CommonConfirmationModal
@@ -258,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import type { TableColumn, ContextMenuItem } from '@nuxt/ui'
 
 definePageMeta({
@@ -277,6 +150,7 @@ interface Media {
   type: string
   description: string
   file?: MediaFile
+  original_file?: MediaFile
   created_at: string
   updated_at: string
 }
@@ -299,7 +173,7 @@ const deleting = ref(false)
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
+  total: 0,
 })
 
 // Type filter options
@@ -397,13 +271,17 @@ const handleUploaded = async () => {
 }
 
 const handleView = (item: Media) => {
+  console.log('handleView called with item:', item)
   selectedItem.value = item
+  console.log('selectedItem set to:', selectedItem.value)
   showDetailModal.value = true
+  console.log('showDetailModal set to:', showDetailModal.value)
 }
 
-const handleDownload = (item: Media) => {
-  if (item.file) {
-    window.open(item.file.url, '_blank')
+const handleDownload = (item: Media | null, fileType: 'converted' | 'original' = 'converted') => {
+  const fileUrl = fileType === 'converted' ? item?.file?.url : item?.original_file?.url
+  if (fileUrl) {
+    window.open(fileUrl, '_blank')
   }
 }
 
@@ -440,6 +318,23 @@ const confirmDelete = async () => {
   }
 }
 
+const copyToClipboard = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    toast.add({
+      title: 'Copied',
+      description: 'URL copied to clipboard',
+      color: 'success',
+    })
+  } catch {
+    toast.add({
+      title: 'Error',
+      description: 'Failed to copy URL',
+      color: 'error',
+    })
+  }
+}
+
 const handleSearch = () => {
   pagination.page = 1
   fetchMedia()
@@ -465,34 +360,6 @@ const toggleViewMode = () => {
   viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
 }
 
-const showContextMenu = (event: MouseEvent, item: Media) => {
-  // Context menu handled by BaseTable
-}
-
-const isImage = (type: string) => {
-  return type.toLowerCase().includes('image')
-}
-
-const isVideo = (type: string) => {
-  return type.toLowerCase().includes('video')
-}
-
-const isAudio = (type: string) => {
-  return type.toLowerCase().includes('audio')
-}
-
-const getFileIcon = (type: string) => {
-  const lowerType = type.toLowerCase()
-  if (lowerType.includes('image')) return 'i-lucide-image'
-  if (lowerType.includes('video')) return 'i-lucide-video'
-  if (lowerType.includes('audio')) return 'i-lucide-music'
-  if (lowerType.includes('document') || lowerType.includes('pdf')) return 'i-lucide-file-text'
-  return 'i-lucide-file'
-}
-
-const formatDateTime = (dateString: string) => {
-  return new Date(dateString).toLocaleString()
-}
 
 onMounted(() => {
   fetchMedia()

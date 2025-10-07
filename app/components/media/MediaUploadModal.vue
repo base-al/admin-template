@@ -162,8 +162,13 @@ const setFile = (file: File) => {
   }
   // Auto-detect type
   if (!uploadForm.type) {
-    const mimeType = file.type
-    if (mimeType.startsWith('image/')) uploadForm.type = 'image'
+    const mimeType = file.type.toLowerCase()
+    const fileName = file.name.toLowerCase()
+
+    // Check for HEIC/HEIF by extension if MIME type is not set
+    if (mimeType.startsWith('image/') || fileName.endsWith('.heic') || fileName.endsWith('.heif')) {
+      uploadForm.type = 'image'
+    }
     else if (mimeType.startsWith('audio/')) uploadForm.type = 'audio'
     else if (mimeType.startsWith('video/')) uploadForm.type = 'video'
     else if (mimeType.includes('pdf') || mimeType.includes('document')) uploadForm.type = 'document'
