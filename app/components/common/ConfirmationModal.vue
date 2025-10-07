@@ -13,7 +13,7 @@
       </div>
     </template>
 
-    <template #content>
+    <template #body>
       <div class="space-y-4">
         <p class="text-gray-600 dark:text-gray-400">
           {{ message }}
@@ -39,7 +39,7 @@
     </template>
 
     <template #footer>
-      <div class="flex flex-col sm:flex-row gap-3 justify-end">
+      <div class="flex flex-row gap-3 items-center justify-start">
         <UButton
           variant="outline"
           :disabled="loading"

@@ -35,6 +35,15 @@ const allLinks: CustomNavigationMenuItem[][] = [[
   }))
 ], [
   {
+    label: 'Media',
+    to: '/app/media',
+    icon: 'i-lucide-image',
+    permission: 'media:list',
+    onSelect: () => {
+      open.value = false
+    }
+  },
+  {
     label: 'Employees',
     to: '/app/employees',
     icon: 'i-lucide-users',
