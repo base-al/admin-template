@@ -68,6 +68,28 @@
                 :alt="item.name"
                 class="w-full h-full object-cover"
               >
+              <video
+                v-else-if="item.file && isVideo(item.type)"
+                :src="item.file.url"
+                class="w-full h-full object-cover"
+                controls
+                preload="metadata"
+              >
+                Your browser does not support video playback.
+              </video>
+              <div
+                v-else-if="item.file && isAudio(item.type)"
+                class="w-full h-full flex items-center justify-center p-4"
+              >
+                <audio
+                  :src="item.file.url"
+                  controls
+                  class="w-full"
+                  preload="metadata"
+                >
+                  Your browser does not support audio playback.
+                </audio>
+              </div>
               <UIcon
                 v-else
                 :name="getFileIcon(item.type)"
@@ -139,6 +161,28 @@
                   :alt="selectedItem.name"
                   class="max-w-full max-h-full object-contain"
                 >
+                <video
+                  v-else-if="selectedItem.file && isVideo(selectedItem.type)"
+                  :src="selectedItem.file.url"
+                  class="max-w-full max-h-full"
+                  controls
+                  preload="metadata"
+                >
+                  Your browser does not support video playback.
+                </video>
+                <div
+                  v-else-if="selectedItem.file && isAudio(selectedItem.type)"
+                  class="w-full flex items-center justify-center p-8"
+                >
+                  <audio
+                    :src="selectedItem.file.url"
+                    controls
+                    class="w-full max-w-md"
+                    preload="metadata"
+                  >
+                    Your browser does not support audio playback.
+                  </audio>
+                </div>
                 <UIcon
                   v-else
                   :name="getFileIcon(selectedItem.type)"
@@ -427,6 +471,14 @@ const showContextMenu = (event: MouseEvent, item: Media) => {
 
 const isImage = (type: string) => {
   return type.toLowerCase().includes('image')
+}
+
+const isVideo = (type: string) => {
+  return type.toLowerCase().includes('video')
+}
+
+const isAudio = (type: string) => {
+  return type.toLowerCase().includes('audio')
 }
 
 const getFileIcon = (type: string) => {

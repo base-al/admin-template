@@ -43,9 +43,13 @@ export const useSettingsStore = defineStore('settings', {
       state.settings.filter(s => s.group === 'email'),
     
     // Get service settings
-    serviceSettings: (state) => 
+    serviceSettings: (state) =>
       state.settings.filter(s => s.group === 'service'),
-    
+
+    // Get media settings
+    mediaSettings: (state) =>
+      state.settings.filter(s => s.group === 'media'),
+
     // Helper getters for specific values
     companyName: (state) =>
       state.settings.find(s => s.setting_key === 'company_name')?.value_string || 'Base',
@@ -296,6 +300,43 @@ export const useSettingsStore = defineStore('settings', {
           is_public: setting.is_public
         })
       }
+    },
+
+    // Update media settings
+    async updateMediaSettings(formData: {
+      media_convert_images: boolean
+      media_convert_videos: boolean
+      media_convert_audio: boolean
+      media_keep_original: boolean
+      media_image_quality: number
+      media_video_quality: number
+      media_audio_bitrate: number
+    }) {
+      const updates = Object.entries(formData).map(([key, value]) => {
+        const setting = this.settings.find(s => s.setting_key === key && s.group === 'media')
+        if (setting) {
+          const data: SettingUpdate = {
+            setting_key: key,
+            label: setting.label,
+            group: 'media',
+            type: setting.type,
+            description: setting.description,
+            is_public: setting.is_public
+          }
+
+          // Set appropriate value field based on type
+          if (setting.type === 'bool') {
+            data.value_bool = value as boolean
+          } else if (setting.type === 'int') {
+            data.value_int = value as number
+          }
+
+          return { id: setting.id, data }
+        }
+        return null
+      }).filter(Boolean) as Array<{ id: number; data: SettingUpdate }>
+
+      return this.updateSettings(updates)
     },
 
     // Update multiple settings by key
