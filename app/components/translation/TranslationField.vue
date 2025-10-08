@@ -128,7 +128,7 @@
 
 <script setup lang="ts">
 import { computed, ref, reactive } from 'vue'
-import { useTranslation, type TranslationField, type SupportedLanguage } from '@@/app/composables/useTranslation'
+import { useTranslation, type TranslationField } from '@@/app/composables/useTranslation'
 
 interface Props {
   field: string
@@ -216,7 +216,7 @@ const availableTranslations = computed(() => {
   
   // From translation object
   if (props.value && typeof props.value === 'object' && 'original' in props.value) {
-    const translationObj = props.value as any
+    const translationObj = props.value as Record<string, string>
     for (const [langCode] of Object.entries(SUPPORTED_LANGUAGES)) {
       if (translationObj[langCode] && langCode !== 'original' && !processedLanguages.has(langCode)) {
         translations.push({
@@ -262,7 +262,7 @@ function hasTranslation(langCode: string): boolean {
   
   // If the value is a translation object, check if it has this language
   if (props.value && typeof props.value === 'object' && 'original' in props.value) {
-    const translationObj = props.value as any
+    const translationObj = props.value as Record<string, string>
     return !!(translationObj[langCode])
   }
   
@@ -294,7 +294,7 @@ function initializeEditableTranslations() {
 
   // Populate with current translations
   if (props.value && typeof props.value === 'object' && 'original' in props.value) {
-    const translationObj = props.value as any
+    const translationObj = props.value as Record<string, string>
     for (const langCode of Object.keys(SUPPORTED_LANGUAGES)) {
       if (translationObj[langCode]) {
         editableTranslations[langCode] = translationObj[langCode]

@@ -5,7 +5,6 @@ defineProps<{
   collapsed?: boolean
 }>()
 
-const authStore = useAuthStore()
 const authorizationStore = useAuthorizationStore()
 const router = useRouter()
 const { selectedDashboard, setSelectedDashboard, getCurrentRoleName } = useDashboardState()
@@ -132,7 +131,7 @@ const showAsButton = computed(() => !isAdminRole.value)
       src="/assets/svg/logo.svg"
       alt="Negenet Logo"
       :class="collapsed ? 'h-8 w-8' : 'h-10 w-auto max-w-full'"
-    />
+    >
   </div>
 
   <!-- For admin roles: Show as dropdown menu -->

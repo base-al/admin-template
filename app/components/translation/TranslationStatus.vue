@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useTranslation, type SupportedLanguage, type TranslationField } from '@@/app/composables/useTranslation'
+import { useTranslation, type TranslationField } from '@@/app/composables/useTranslation'
 
 interface Props {
   field: string
@@ -99,7 +99,7 @@ function hasTranslation(langCode: string): boolean {
   
   // If the value is a translation object, check if it has this language
   if (props.value && typeof props.value === 'object' && 'original' in props.value) {
-    const translationObj = props.value as any
+    const translationObj = props.value as Record<string, string>
     return !!(translationObj[langCode])
   }
   

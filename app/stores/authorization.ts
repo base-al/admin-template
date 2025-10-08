@@ -125,8 +125,8 @@ export const useAuthorizationStore = defineStore('authorization', {
           try {
             response = await api.get<{ data: Permission[] }>('/authorization/user/permissions')
             break
-          } catch (error: any) {
-            if (error.statusCode === 401 && attempts < 2) {
+          } catch (error) {
+            if (error && typeof error === 'object' && 'statusCode' in error && error.statusCode === 401 && attempts < 2) {
               attempts++
               // Wait a bit before retrying
               await new Promise(resolve => setTimeout(resolve, 200))

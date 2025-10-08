@@ -1,5 +1,6 @@
 <template>
-  <UModal v-model:open="isOpen" 
+  <UModal
+v-model:open="isOpen" 
   title="Upload Media"
   description="Upload a new media file to the library"
   >
@@ -105,17 +106,17 @@ import { ref, reactive, computed } from 'vue'
 
 interface Props {
   modelValue: boolean
+  parentId?: number | null
 }
 
 interface Emits {
   (e: 'update:modelValue', value: boolean): void
-  (e: 'uploaded', media: any): void
+  (e: 'uploaded', media: unknown): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const api = useApi()
 const toast = useToast()
 
 const fileInput = ref<HTMLInputElement>()
@@ -203,6 +204,9 @@ const handleUpload = async () => {
     if (uploadForm.description) {
       formData.append('description', uploadForm.description)
     }
+    if (props.parentId) {
+      formData.append('parent_id', props.parentId.toString())
+    }
 
     // Use $fetch directly for file uploads to avoid JSON Content-Type header
     const config = useRuntimeConfig()
@@ -226,15 +230,16 @@ const handleUpload = async () => {
 
     emit('uploaded', media)
     handleClose()
-  } catch (error: any) {
+  } catch (error) {
     // Extract error message from API response
     let errorMessage = 'Failed to upload file'
 
-    if (error?.data?.error) {
-      // Backend returned error object with error field
-      errorMessage = error.data.error
-    } else if (error?.message) {
-      // Standard error message
+    if (error && typeof error === 'object' && 'data' in error) {
+      const errorData = error.data as { error?: string }
+      if (errorData.error) {
+        errorMessage = errorData.error
+      }
+    } else if (error instanceof Error) {
       errorMessage = error.message
     }
 

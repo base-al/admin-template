@@ -41,9 +41,9 @@ watch(mediaSettings, (settings) => {
   settings.forEach(setting => {
     const key = setting.setting_key as keyof MediaSchema
     if (setting.type === 'bool') {
-      formData[key] = setting.value_bool as any
+      formData[key] = setting.value_bool as boolean
     } else if (setting.type === 'int') {
-      formData[key] = setting.value_int as any
+      formData[key] = setting.value_int as number
     }
   })
 }, { immediate: true })

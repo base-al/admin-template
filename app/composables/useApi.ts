@@ -45,7 +45,8 @@ export const useApi = () => {
     endpoint: string,
     options: {
       method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
-      body?: any
+      body?: unknown
+      params?: Record<string, string | number>
       headers?: Record<string, string>
       requireAuth?: boolean
       skipErrorHandling?: boolean
@@ -56,6 +57,7 @@ export const useApi = () => {
       const response = await $fetch<T>(`${baseURL}${endpoint}`, {
         method: options.method || 'GET',
         body: options.body,
+        params: options.params,
         timeout: 10000, // 10 second timeout
         headers: {
           ...getHeaders(requireAuth),
@@ -108,7 +110,7 @@ export const useApi = () => {
     endpoint: string,
     options: {
       method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
-      body?: any
+      body?: unknown
       headers?: Record<string, string>
       skipErrorHandling?: boolean
     } = {}
@@ -145,18 +147,19 @@ export const useApi = () => {
     token: readonly(token),
     setToken,
     removeToken,
-    
+
     // HTTP Methods
-    get: <T = unknown>(endpoint: string) => apiRequest<T>(endpoint),
-    post: <T = unknown>(endpoint: string, data?: any) => apiRequest<T>(endpoint, { method: 'POST', body: data }),
-    put: <T = unknown>(endpoint: string, data?: any) => apiRequest<T>(endpoint, { method: 'PUT', body: data }),
-    patch: <T = unknown>(endpoint: string, data?: any) => apiRequest<T>(endpoint, { method: 'PATCH', body: data }),
+    get: <T = unknown>(endpoint: string, options?: { params?: Record<string, string | number> }) =>
+      apiRequest<T>(endpoint, { params: options?.params }),
+    post: <T = unknown>(endpoint: string, data?: unknown) => apiRequest<T>(endpoint, { method: 'POST', body: data }),
+    put: <T = unknown>(endpoint: string, data?: unknown) => apiRequest<T>(endpoint, { method: 'PUT', body: data }),
+    patch: <T = unknown>(endpoint: string, data?: unknown) => apiRequest<T>(endpoint, { method: 'PATCH', body: data }),
     delete: <T = unknown>(endpoint: string) => apiRequest<T>(endpoint, { method: 'DELETE' }),
 
     // Auth-only requests (no Bearer token)
-    authPost: <T = unknown>(endpoint: string, data?: any) => authRequest<T>(endpoint, { method: 'POST', body: data }),
+    authPost: <T = unknown>(endpoint: string, data?: unknown) => authRequest<T>(endpoint, { method: 'POST', body: data }),
     authGet: <T = unknown>(endpoint: string) => authRequest<T>(endpoint),
-    
+
     // Direct access to request methods (for advanced usage)
     authRequest: authRequest,
     request: apiRequest,

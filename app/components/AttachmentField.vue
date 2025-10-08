@@ -18,7 +18,7 @@
               :src="previewUrl"
               :alt="selectedFile?.name || 'Preview'"
               class="w-full h-full object-cover"
-            />
+            >
           </div>
 
           <!-- File Icon for non-images -->
@@ -80,7 +80,7 @@
           :accept="accept"
           class="hidden"
           @change="handleFileSelect"
-        />
+        >
 
         <UIcon name="i-lucide-upload" class="w-8 h-8 text-gray-400 mx-auto mb-2" />
         <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -111,9 +111,11 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  modelValue: null,
   label: 'File',
   required: false,
   accept: '*/*',
+  name: 'file',
 })
 
 const emit = defineEmits<{
@@ -201,11 +203,14 @@ const uploadFile = async (file: File) => {
       description: 'File uploaded successfully',
       color: 'success',
     })
-  } catch (error: any) {
+  } catch (error) {
     let errorMessage = 'Failed to upload file'
-    if (error?.data?.error) {
-      errorMessage = error.data.error
-    } else if (error?.message) {
+    if (error && typeof error === 'object' && 'data' in error) {
+      const errorData = error.data as { error?: string }
+      if (errorData.error) {
+        errorMessage = errorData.error
+      }
+    } else if (error instanceof Error) {
       errorMessage = error.message
     }
 

@@ -76,10 +76,10 @@ const formatRelativeTime = (timestamp: string) => {
 
     <div v-if="isLoading" class="space-y-3">
       <div v-for="i in 5" :key="i" class="animate-pulse flex items-center gap-3">
-        <div class="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+        <div class="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full"/>
         <div class="flex-1 space-y-2">
-          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-          <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"/>
+          <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"/>
         </div>
       </div>
     </div>

@@ -16,7 +16,10 @@ export interface StatCardProps {
 
 const props = withDefaults(defineProps<StatCardProps>(), {
   iconColor: 'text-primary',
-  loading: false
+  loading: false,
+  trend: undefined,
+  description: undefined,
+  href: undefined,
 })
 
 const trendIcon = computed(() => {
@@ -61,7 +64,7 @@ const formattedValue = computed(() => {
         
         <div class="space-y-1">
           <div v-if="loading" class="animate-pulse">
-            <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+            <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-20"/>
           </div>
           <div v-else class="text-2xl font-bold text-gray-900 dark:text-white">
             {{ formattedValue }}

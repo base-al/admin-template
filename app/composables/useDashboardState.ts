@@ -37,7 +37,7 @@ export const useDashboardState = () => {
 
   // Initialize dashboard selection
   const initializeDashboard = () => {
-    if (process.client) {
+    if (import.meta.client) {
       const currentRole = getCurrentRoleName()
 
       if (isAdminRole.value) {
@@ -53,7 +53,7 @@ export const useDashboardState = () => {
 
   // Set selected dashboard (only for admin users)
   const setSelectedDashboard = (dashboardRole: string) => {
-    if (isAdminRole.value && process.client) {
+    if (isAdminRole.value && import.meta.client) {
       selectedDashboard.value = dashboardRole
       localStorage.setItem('selected_dashboard', dashboardRole)
     }

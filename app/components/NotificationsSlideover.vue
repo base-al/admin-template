@@ -2,7 +2,7 @@
 const { isNotificationsSlideoverOpen } = useDashboard()
 
 // Notifications feature placeholder - can be implemented when needed
-const notifications = ref<any[]>([])
+const notifications = ref<unknown[]>([])
 </script>
 
 <template>

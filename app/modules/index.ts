@@ -40,7 +40,7 @@ const moduleFiles = import.meta.glob('./*/module.config.ts', { eager: true })
 const modules: ModuleConfig[] = []
 
 for (const path in moduleFiles) {
-  const module = moduleFiles[path] as any
+  const module = moduleFiles[path] as { default?: ModuleConfig }
   if (module.default) {
     modules.push(module.default)
   }

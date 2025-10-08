@@ -27,8 +27,8 @@ export const useActivitiesStore = defineStore('activities', {
         const api = useApi()
         const response = await api.get<Activity[]>(`/api/activities/recent?limit=${limit}`)
         this.activities = response
-      } catch (error: any) {
-        this.error = error.message || 'Failed to fetch recent activities'
+      } catch (error) {
+        this.error = error instanceof Error ? error.message : 'Failed to fetch recent activities'
         console.error('Failed to fetch activities:', error)
         throw error
       } finally {
@@ -44,8 +44,8 @@ export const useActivitiesStore = defineStore('activities', {
         const api = useApi()
         const response = await api.get<Activity[]>(`/api/activities?user_id=${userId}&limit=${limit}`)
         return response
-      } catch (error: any) {
-        this.error = error.message || 'Failed to fetch user activities'
+      } catch (error) {
+        this.error = error instanceof Error ? error.message : 'Failed to fetch user activities'
         throw error
       } finally {
         this.loading = false
@@ -62,8 +62,8 @@ export const useActivitiesStore = defineStore('activities', {
           `/api/activities?entity_type=${entityType}&entity_id=${entityId}&limit=${limit}`
         )
         return response
-      } catch (error: any) {
-        this.error = error.message || 'Failed to fetch entity activities'
+      } catch (error) {
+        this.error = error instanceof Error ? error.message : 'Failed to fetch entity activities'
         throw error
       } finally {
         this.loading = false

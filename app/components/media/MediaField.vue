@@ -11,7 +11,8 @@
     <div class="space-y-2">
       <div
         v-if="selectedMedia"
-        class="relative border border-gray-200 dark:border-gray-700 rounded-lg p-3"
+        class="relative border border-gray-200 dark:border-gray-700 rounded-lg p-3 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
+        @click="showPicker = true"
       >
         <div class="flex items-center gap-3">
           <!-- Thumbnail -->
@@ -44,41 +45,28 @@
               size="sm"
               variant="ghost"
               icon="i-lucide-eye"
-              @click="handleView"
+              @click.stop="handleView"
             />
             <UButton
               size="sm"
               variant="ghost"
               icon="i-lucide-x"
               color="error"
-              @click="handleClear"
+              @click.stop="handleClear"
             />
           </div>
         </div>
       </div>
 
       <!-- Select Button -->
-      <div v-else class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
+      <div
+        v-else
+        class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
+        @click="showPicker = true"
+      >
         <UIcon name="i-lucide-image" class="w-8 h-8 text-gray-400 mx-auto mb-2" />
         <p class="text-sm text-gray-500 mb-2">No media selected</p>
-      </div>
-
-      <div class="flex gap-2">
-        <UButton
-          variant="outline"
-          icon="i-lucide-image"
-          @click="showPicker = true"
-        >
-          {{ selectedMedia ? 'Change' : 'Select' }} Media
-        </UButton>
-        <UButton
-          v-if="allowUpload"
-          variant="outline"
-          icon="i-lucide-upload"
-          @click="showUpload = true"
-        >
-          Upload New
-        </UButton>
+        <p class="text-xs text-gray-400">Click to select media</p>
       </div>
     </div>
 

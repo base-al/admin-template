@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTranslationState } from '@@/app/composables/useTranslation'
 import type { SupportedLanguage } from '@@/app/composables/useTranslation'

@@ -4,21 +4,15 @@ import type { DropdownMenuItem } from '@nuxt/ui'
 import type { Period, Range } from '~/types'
 
 const { isNotificationsSlideoverOpen } = useDashboard()
-const { 
-  selectedDashboard, 
-  isAdminRole, 
-  getCurrentRoleName, 
-  initializeDashboard, 
-  setSelectedDashboard, 
-  getDashboardTitle 
+const {
+  initializeDashboard,
+  getDashboardTitle
 } = useDashboardState()
 
 // Initialize dashboard state on mount
 onMounted(() => {
   initializeDashboard()
 })
-
-const currentRoleName = computed(() => getCurrentRoleName())
 
 // All roles use the same AdminDashboard component
 const AdminDashboard = defineAsyncComponent(() => import('~/components/dashboard/AdminDashboard.vue'))
