@@ -48,7 +48,7 @@ const allNavigationItems: CustomNavigationMenuItem[] = [
     }
   },
   {
-    label: 'Employees',
+    label: 'Users',
     to: '/app/users',
     icon: 'i-lucide-users',
     permission: 'employee:list',
@@ -126,7 +126,7 @@ const links = computed(() => {
     .filter(key => key !== 'main' && key !== 'system')
     .sort() // Sort alphabetically
     .forEach(key => {
-      if (groupedItems[key].length > 0) {
+      if (groupedItems[key] && groupedItems[key].length > 0) {
         result.push(groupedItems[key])
       }
     })
@@ -143,16 +143,6 @@ const groups = computed(() => [{
   id: 'links',
   label: 'Go to',
   items: links.value.flat() as CustomNavigationMenuItem[],
-}, {
-  id: 'code',
-  label: 'Code',
-  items: [{
-    id: 'source',
-    label: 'View page source',
-    icon: 'i-simple-icons-github',
-    to: `https://github.com/nuxt-ui-templates/dashboard/blob/main/app/pages${route.path === '/' ? '/index' : route.path}.vue`,
-    target: '_blank'
-  }]
 }])
 
 // Initialize auth store and permissions
