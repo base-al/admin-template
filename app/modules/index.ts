@@ -10,6 +10,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 export interface ModuleNavigation extends NavigationMenuItem {
   permission?: string
   order?: number
+  group?: string // Group name for organizing navigation items
 }
 
 export interface ModuleConfig {
