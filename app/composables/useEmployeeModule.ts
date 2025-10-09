@@ -13,6 +13,7 @@
  * - Permission-based access control
  */
 
+import { toast } from '#build/ui'
 import type { 
   Employee, 
   CreateEmployeeRequest, 
@@ -47,7 +48,7 @@ export function useEmployeeModule() {
 
   // ===== API COMPOSABLES =====
   const api = useApi()
-  const { $toast } = useNuxtApp()
+  const toast  = useToast()
 
   // ===== EMPLOYEE OPERATIONS =====
   
@@ -72,10 +73,10 @@ export function useEmployeeModule() {
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : ''
       state.error = errorMessage || 'Failed to fetch employees'
-      $toast.add({
+      toast.add({
         title: 'Error',
         description: state.error,
-        color: 'red'
+       
       })
       throw error
     } finally {
@@ -97,10 +98,10 @@ export function useEmployeeModule() {
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : ''
       state.error = errorMessage || 'Failed to fetch employee'
-      $toast.add({
+      toast.add({
         title: 'Error',
         description: state.error,
-        color: 'red'
+       
       })
       throw error
     } finally {
@@ -119,20 +120,20 @@ export function useEmployeeModule() {
       const newEmployee = await api.post<Employee>('/employees', employeeData)
       state.employees.unshift(newEmployee)
       
-      $toast.add({
+      toast.add({
         title: 'Success',
         description: 'Employee created successfully',
-        color: 'green'
+        
       })
       
       return newEmployee
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : ''
       state.error = errorMessage || 'Failed to create employee'
-      $toast.add({
+      toast.add({
         title: 'Error',
         description: state.error,
-        color: 'red'
+       
       })
       throw error
     } finally {
@@ -159,20 +160,20 @@ export function useEmployeeModule() {
         state.selectedEmployee = updatedEmployee
       }
       
-      $toast.add({
+      toast.add({
         title: 'Success',
         description: 'Employee updated successfully',
-        color: 'green'
+        
       })
       
       return updatedEmployee
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : ''
       state.error = errorMessage || 'Failed to update employee'
-      $toast.add({
+      toast.add({
         title: 'Error',
         description: state.error,
-        color: 'red'
+       
       })
       throw error
     } finally {
@@ -195,18 +196,18 @@ export function useEmployeeModule() {
         state.selectedEmployee = null
       }
       
-      $toast.add({
+      toast.add({
         title: 'Success',
         description: 'Employee deleted successfully',
-        color: 'green'
+        
       })
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : ''
       state.error = errorMessage || 'Failed to delete employee'
-      $toast.add({
+      toast.add({
         title: 'Error',
         description: state.error,
-        color: 'red'
+       
       })
       throw error
     } finally {
@@ -249,20 +250,20 @@ export function useEmployeeModule() {
       const typedRole = newRole as Role
       state.roles.unshift(typedRole)
       
-      $toast.add({
+      toast.add({
         title: 'Success',
         description: 'Role created successfully',
-        color: 'green'
+        
       })
       
       return typedRole
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to create role'
       state.error = errorMessage
-      $toast.add({
+      toast.add({
         title: 'Error',
         description: state.error,
-        color: 'red'
+       
       })
       throw error
     } finally {
@@ -285,20 +286,20 @@ export function useEmployeeModule() {
         state.roles[index] = updatedRole
       }
       
-      $toast.add({
+      toast.add({
         title: 'Success',
         description: 'Role updated successfully',
-        color: 'green'
+        
       })
       
       return updatedRole
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : ''
       state.error = errorMessage || 'Failed to update role'
-      $toast.add({
+      toast.add({
         title: 'Error',
         description: state.error,
-        color: 'red'
+       
       })
       throw error
     } finally {
@@ -318,18 +319,18 @@ export function useEmployeeModule() {
       
       state.roles = state.roles.filter(role => role.id !== id)
       
-      $toast.add({
+      toast.add({
         title: 'Success',
         description: 'Role deleted successfully',
-        color: 'green'
+        
       })
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : ''
       state.error = errorMessage || 'Failed to delete role'
-      $toast.add({
+      toast.add({
         title: 'Error',
         description: state.error,
-        color: 'red'
+       
       })
       throw error
     } finally {
