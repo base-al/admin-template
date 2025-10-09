@@ -43,21 +43,21 @@ export const useDateFormat = () => {
    */
   const formatDateRange = (startDate: string | Date | null | undefined, endDate: string | Date | null | undefined): string => {
     if (!startDate || !endDate) return '-'
-    
+
     const start = typeof startDate === 'string' ? new Date(startDate) : startDate
     const end = typeof endDate === 'string' ? new Date(endDate) : endDate
-    
+
     try {
       // If same year and month, show "1-31 March 2026"
       if (start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth()) {
         return `${format(start, 'd')} - ${format(end, 'd MMMM yyyy')}`
       }
-      
-      // If same year, show "1 March - 30 April 2026"  
+
+      // If same year, show "1 March - 30 April 2026"
       if (start.getFullYear() === end.getFullYear()) {
         return `${formatDateNoYear(start)} - ${formatDate(end)}`
       }
-      
+
       // Different years, show full dates: "1 March 2026 - 30 April 2027"
       return `${formatDate(start)} - ${formatDate(end)}`
     } catch (error) {
@@ -66,10 +66,18 @@ export const useDateFormat = () => {
     }
   }
 
+  /**
+   * Format datetime as "1 March 2026, 14:30"
+   */
+  const formatDateTime = (date: string | Date | null | undefined): string => {
+    return formatDate(date, 'd MMMM yyyy, HH:mm')
+  }
+
   return {
     formatDate,
     formatDateShort,
     formatDateNoYear,
-    formatDateRange
+    formatDateRange,
+    formatDateTime
   }
 }

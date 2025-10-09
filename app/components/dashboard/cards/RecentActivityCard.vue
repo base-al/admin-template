@@ -1,14 +1,11 @@
 <script setup lang="ts">
-const employeesStore = useUsersStore()
-
-// Load data on component mount
-onMounted(async () => {
-  await employeesStore.fetchEmployees()
-})
+// Note: This component shows recent activity from your system.
+// Customize this to show data from stores that exist in your project.
+// By default it shows a placeholder state since stores may vary by project.
 
 interface ActivityItem {
   id: string
-  type: 'employee' | 'user' | 'system'
+  type: 'user' | 'system'
   title: string
   description: string
   timestamp: string
@@ -17,36 +14,33 @@ interface ActivityItem {
   href?: string
 }
 
-// Recent activities (employees joining, etc.)
-const recentActivities = computed<ActivityItem[]>(() => {
-  const activities: ActivityItem[] = []
+// Placeholder activities - customize this to fetch from your actual stores
+const recentActivities = ref<ActivityItem[]>([])
+const isLoading = ref(false)
 
-  // Recent employees
-  const recentEmployees = employeesStore.employees
-    .slice()
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, 10)
-
-  recentEmployees.forEach(employee => {
-    activities.push({
-      id: `employee-${employee.id}`,
-      type: 'employee',
-      title: 'New team member',
-      description: `${employee.first_name} ${employee.last_name} joined`,
-      timestamp: employee.created_at,
-      icon: 'i-lucide-user-plus',
-      iconColor: 'text-blue-500',
-      href: `/app/users/${employee.id}`
-    })
-  })
-
-  // Sort all activities by timestamp
-  return activities
-    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-    .slice(0, 10)
-})
-
-const isLoading = computed(() => employeesStore.isLoading)
+// Example: Uncomment and customize based on your generated modules
+// onMounted(async () => {
+//   const usersStore = useUsersStore()
+//   await usersStore.fetchUsers()
+//
+//   const recentUsers = (usersStore.users || [])
+//     .slice()
+//     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+//     .slice(0, 10)
+//
+//   recentUsers.forEach(user => {
+//     recentActivities.value.push({
+//       id: `user-${user.id}`,
+//       type: 'user',
+//       title: 'New user registered',
+//       description: user.name || user.email,
+//       timestamp: user.created_at,
+//       icon: 'i-lucide-user-plus',
+//       iconColor: 'text-blue-500',
+//       href: `/app/users/${user.id}`
+//     })
+//   })
+// })
 
 // Format relative time
 const formatRelativeTime = (timestamp: string) => {
