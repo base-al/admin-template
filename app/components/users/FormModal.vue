@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import type { Employee, Role } from '~/types'
+import type { User, Role } from '~/types'
 
 interface Props {
   modelValue: boolean
   mode: 'create' | 'edit'
-  employee?: Employee | null
+  user?: User | null
   roles: Role[]
   loading?: boolean
 }
 
-interface EmployeeFormData {
+interface UserFormData {
   first_name: string
   last_name: string
   username: string
@@ -23,11 +23,11 @@ interface EmployeeFormData {
 
 interface Emits {
   (e: 'update:modelValue', value: boolean): void
-  (e: 'submit', data: EmployeeFormData): void
+  (e: 'submit', data: UserFormData): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  employee: null,
+  user: null,
   loading: false
 })
 
@@ -74,14 +74,14 @@ const resetForm = () => {
   showPasswordFields.value = false
 }
 
-const populateForm = (employee: Employee) => {
+const populateForm = (user: User) => {
   Object.assign(formState, {
-    first_name: employee.first_name,
-    last_name: employee.last_name,
-    username: employee.username,
-    email: employee.email,
-    phone: employee.phone || '',
-    role_id: employee.role_id,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    username: user.username,
+    email: user.email,
+    phone: user.phone || '',
+    role_id: user.role_id,
     password: '',
     password_confirmation: '',
     old_password: ''
@@ -107,16 +107,16 @@ const handleSubmit = () => {
   emit('submit', submitData)
 }
 
-// Watch for mode and employee changes
+// Watch for mode and user changes
 watch(() => props.mode, (newMode) => {
   if (newMode === 'create') {
     resetForm()
   }
 })
 
-watch(() => props.employee, (newEmployee) => {
-  if (newEmployee && props.mode === 'edit') {
-    populateForm(newEmployee)
+watch(() => props.user, (newUser) => {
+  if (newUser && props.mode === 'edit') {
+    populateForm(newUser)
   }
 }, { immediate: true })
 
@@ -132,7 +132,7 @@ watch(() => props.modelValue, (isOpen) => {
   <UModal v-model:open="isOpen">
     <template #header>
       <h3 class="text-lg font-semibold">
-        {{ mode === 'create' ? 'Create Employee' : 'Edit Employee' }}
+        {{ mode === 'create' ? 'Create User' : 'Edit User' }}
       </h3>
     </template>
 
@@ -142,7 +142,7 @@ watch(() => props.modelValue, (isOpen) => {
           class="space-y-6"
           @submit="handleSubmit"
         >
-          <!-- Employee Details -->
+          <!-- User Details -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <UFormField label="First Name" name="first_name" required>
               <UInput
@@ -254,7 +254,7 @@ watch(() => props.modelValue, (isOpen) => {
               type="submit"
               :loading="loading"
             >
-              {{ mode === 'create' ? 'Create Employee' : 'Update Employee' }}
+              {{ mode === 'create' ? 'Create User' : 'Update User' }}
             </UButton>
 
             <UButton

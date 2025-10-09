@@ -13,12 +13,10 @@
  * - Permission-based access control
  */
 
-import { toast } from '#build/ui'
-import type { 
-  Employee, 
-  CreateEmployeeRequest, 
-  UpdateEmployeeRequest,
-  EmployeeResponse,
+import type {
+  CreateUserRequest,
+  UpdateUserRequest,
+  UserResponse,
   Role,
   Permission,
   RoleCreateRequest,
@@ -26,9 +24,9 @@ import type {
   PermissionCheck
 } from '~/types'
 
-export interface EmployeeModuleState {
-  employees: Employee[]
-  selectedEmployee: Employee | null
+export interface UserModuleState {
+  employees: User[]
+  selectedEmployee: User | null
   roles: Role[]
   permissions: Permission[]
   loading: boolean
@@ -67,7 +65,7 @@ export function useUserModule() {
         }
       })
 
-      const response = await api.get<EmployeeResponse>(`/employees?${params}`)
+      const response = await api.get<UserResponse>(`/employees?${params}`)
       state.employees = response.data || []
       return response
     } catch (error: unknown) {
@@ -92,7 +90,7 @@ export function useUserModule() {
     state.error = null
     
     try {
-      const employee = await api.get<Employee>(`/employees/${id}`)
+      const employee = await api.get<User>(`/employees/${id}`)
       state.selectedEmployee = employee
       return employee
     } catch (error: unknown) {
@@ -112,12 +110,12 @@ export function useUserModule() {
   /**
    * Create a new employee
    */
-  const createEmployee = async (employeeData: CreateEmployeeRequest) => {
+  const createEmployee = async (employeeData: CreateUserRequest) => {
     state.loading = true
     state.error = null
     
     try {
-      const newEmployee = await api.post<Employee>('/employees', employeeData)
+      const newEmployee = await api.post<User>('/employees', employeeData)
       state.employees.unshift(newEmployee)
       
       toast.add({
@@ -144,12 +142,12 @@ export function useUserModule() {
   /**
    * Update an existing employee
    */
-  const updateEmployee = async (id: number, employeeData: UpdateEmployeeRequest) => {
+  const updateEmployee = async (id: number, employeeData: UpdateUserRequest) => {
     state.loading = true
     state.error = null
     
     try {
-      const updatedEmployee = await api.put<Employee>(`/employees/${id}`, employeeData)
+      const updatedEmployee = await api.put<User>(`/employees/${id}`, employeeData)
       
       const index = state.employees.findIndex(emp => emp.id === id)
       if (index !== -1) {
@@ -400,7 +398,7 @@ export function useUserModule() {
 
   // ===== UTILITY FUNCTIONS =====
   
-  const setSelectedEmployee = (employee: Employee | null) => {
+  const setSelectedEmployee = (employee: User | null) => {
     state.selectedEmployee = employee
   }
 

@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
-import type { Employee, CreateEmployeeRequest, UpdateEmployeeRequest } from '~/types'
+import type { User, CreateUserRequest, UpdateUserRequest } from '~/types'
 
-interface EmployeesState {
-  employees: Employee[]
-  selectedEmployee: Employee | null
+interface UsersState {
+  users: User[]
+  selectedUser: User | null
   isLoading: boolean
   isCreating: boolean
   isUpdating: boolean
@@ -17,10 +17,10 @@ interface EmployeesState {
   }
 }
 
-export const useUsersStore = defineStore('employees', {
-  state: (): EmployeesState => ({
-    employees: [],
-    selectedEmployee: null,
+export const useUsersStore = defineStore('users', {
+  state: (): UsersState => ({
+    users: [],
+    selectedUser: null,
     isLoading: false,
     isCreating: false,
     isUpdating: false,
@@ -35,27 +35,27 @@ export const useUsersStore = defineStore('employees', {
   }),
 
   getters: {
-    employeeById: (state) => (id: number) => 
-      state.employees.find(employee => employee.id === id),
+    userById: (state) => (id: number) =>
+      state.users.find((user: User) => user.id === id),
 
-    employeesByRole: (state) => (roleId: number) => 
-      state.employees.filter(employee => employee.role_id === roleId),
+    usersByRole: (state) => (roleId: number) =>
+      state.users.filter((user: User) => user.role_id === roleId),
 
-    activeEmployees: (state) => 
-      state.employees.filter(employee => !employee.deleted_at),
+    activeUsers: (state) =>
+      state.users.filter((user: User) => !user.deleted_at),
 
-    employeeCount: (state) => state.employees.length,
+    userCount: (state) => state.users.length,
 
-    // Transform employees for display
-    employeesWithDisplayName: (state) => state.employees.map(employee => ({
-      ...employee,
-      name: `${employee.first_name} ${employee.last_name}`.trim(),
-      display_name: `${employee.first_name} ${employee.last_name}`.trim()
+    // Transform users for display
+    usersWithDisplayName: (state) => state.users.map((user: User) => ({
+      ...user,
+      name: `${user.first_name} ${user.last_name}`.trim(),
+      display_name: `${user.first_name} ${user.last_name}`.trim()
     }))
   },
 
   actions: {
-    async fetchEmployees(page = 1, limit = 25, search = '') {
+    async fetchUsers(page = 1, limit = 25, search = '') {
       this.isLoading = true
       this.error = null
 
@@ -68,20 +68,20 @@ export const useUsersStore = defineStore('employees', {
 
         const api = useApi()
         const response = await api.get<{
-          data: Employee[]
+          data: User[]
           pagination?: {
             current_page: number
             total_pages: number
             total_items: number
             items_per_page: number
           }
-        }>(`/employees?${params}`)
+        }>(`/users?${params}`)
 
         // Handle both paginated and non-paginated responses
         if (Array.isArray(response)) {
-          this.employees = response
+          this.users = response
         } else {
-          this.employees = response.data || []
+          this.users = response.data || []
           if (response.pagination) {
             this.pagination = {
               currentPage: response.pagination.current_page,
@@ -92,153 +92,153 @@ export const useUsersStore = defineStore('employees', {
           }
         }
 
-        return this.employees
-      } catch (error: unknown) {
-        this.error = error.message || 'Failed to fetch employees'
-        console.error('Error fetching employees:', error)
+        return this.users
+      } catch (error) {
+        this.error = (error as Error).message || 'Failed to fetch users'
+        console.error('Error fetching users:', error)
         return []
       } finally {
         this.isLoading = false
       }
     },
 
-    async fetchEmployee(id: number) {
+    async fetchUser(id: number) {
       this.isLoading = true
       this.error = null
 
       try {
         const api = useApi()
-        const employee = await api.get<Employee>(`/employees/${id}`)
-        this.selectedEmployee = employee
-        
-        // Update employee in the list if it exists
-        const index = this.employees.findIndex(emp => emp.id === id)
+        const user = await api.get<User>(`/users/${id}`)
+        this.selectedUser = user
+
+        // Update user in the list if it exists
+        const index = this.users.findIndex((user: User) => user.id === id)
         if (index !== -1) {
-          this.employees[index] = employee
+          this.users[index] = user
         }
 
-        return employee
-      } catch (error: unknown) {
-        this.error = error.message || 'Failed to fetch employee'
-        console.error('Error fetching employee:', error)
+        return user
+      } catch (error) {
+        this.error = (error as Error).message || 'Failed to fetch user'
+        console.error('Error fetching user:', error)
         return null
       } finally {
         this.isLoading = false
       }
     },
 
-    async createEmployee(employeeData: CreateEmployeeRequest) {
+    async createUser(userData: CreateUserRequest) {
       this.isCreating = true
       this.error = null
 
       try {
         const api = useApi()
-        const newEmployee = await api.post<Employee>('/employees', employeeData)
+        const newUser = await api.post<User>('/users', userData)
 
         // Add to local state
-        this.employees.unshift(newEmployee)
+        this.users.unshift(newUser)
         this.pagination.totalItems++
 
-        return { success: true, data: newEmployee }
-      } catch (error: unknown) {
-        this.error = error.message || 'Failed to create employee'
-        console.error('Error creating employee:', error)
+        return { success: true, data: newUser }
+      } catch (error) {
+        this.error = (error as Error).message || 'Failed to create user'
+        console.error('Error creating user:', error)
         return { success: false, error: this.error }
       } finally {
         this.isCreating = false
       }
     },
 
-    async updateEmployee(id: number, employeeData: UpdateEmployeeRequest) {
+    async updateUser(id: number, userData: UpdateUserRequest) {
       this.isUpdating = true
       this.error = null
 
       try {
         const api = useApi()
-        const updatedEmployee = await api.put<Employee>(`/employees/${id}`, employeeData)
+        const updatedUser = await api.put<User>(`/users/${id}`, userData)
 
         // Update in local state
-        const index = this.employees.findIndex(emp => emp.id === id)
+        const index = this.users.findIndex((user: User) => user.id === id)
         if (index !== -1) {
-          this.employees[index] = updatedEmployee
+          this.users[index] = updatedUser
         }
 
-        if (this.selectedEmployee?.id === id) {
-          this.selectedEmployee = updatedEmployee
+        if (this.selectedUser?.id === id) {
+          this.selectedUser = updatedUser
         }
 
-        return { success: true, data: updatedEmployee }
-      } catch (error: unknown) {
-        this.error = error.message || 'Failed to update employee'
-        console.error('Error updating employee:', error)
+        return { success: true, data: updatedUser }
+      } catch (error) {
+        this.error = (error as Error).message || 'Failed to update user'
+        console.error('Error updating user:', error)
         return { success: false, error: this.error }
       } finally {
         this.isUpdating = false
       }
     },
 
-    async deleteEmployee(id: number) {
+    async deleteUser(id: number) {
       this.isDeleting = true
       this.error = null
 
       try {
         const api = useApi()
-        await api.delete(`/employees/${id}`)
+        await api.delete(`/users/${id}`)
 
         // Remove from local state
-        this.employees = this.employees.filter(emp => emp.id !== id)
+        this.users = this.users.filter((user: User) => user.id !== id)
         this.pagination.totalItems--
 
-        if (this.selectedEmployee?.id === id) {
-          this.selectedEmployee = null
+        if (this.selectedUser?.id === id) {
+          this.selectedUser = null
         }
 
         return { success: true }
-      } catch (error: unknown) {
-        this.error = error.message || 'Failed to delete employee'
-        console.error('Error deleting employee:', error)
+      } catch (error) {
+        this.error = (error as Error).message || 'Failed to delete user'
+        console.error('Error deleting user:', error)
         return { success: false, error: this.error }
       } finally {
         this.isDeleting = false
       }
     },
 
-    async changeEmployeePassword(id: number, newPassword: string, currentPassword: string) {
+    async changeUserPassword(id: number, newPassword: string, currentPassword: string) {
       this.isUpdating = true
       this.error = null
 
       try {
         const api = useApi()
-        const result = await api.put(`/employees/${id}/password`, {
+        const result = await api.put(`/users/${id}/password`, {
           NewPassword: newPassword,
           CurrentPassword: currentPassword
         })
 
         return { success: true, data: result }
-      } catch (error: unknown) {
-        this.error = error.message || 'Failed to change employee password'
-        console.error('Error changing employee password:', error)
+      } catch (error) {
+        this.error = (error as Error).message || 'Failed to change user password'
+        console.error('Error changing user password:', error)
         return { success: false, error: this.error }
       } finally {
         this.isUpdating = false
       }
     },
 
-    async searchEmployees(query: string) {
-      return await this.fetchEmployees(1, this.pagination.itemsPerPage, query)
+    async searchUsers(query: string) {
+      return await this.fetchUsers(1, this.pagination.itemsPerPage, query)
     },
 
-    setSelectedEmployee(employee: Employee | null) {
-      this.selectedEmployee = employee
+    setSelectedUser(user: User | null) {
+      this.selectedUser = user
     },
 
     clearError() {
       this.error = null
     },
 
-    clearEmployees() {
-      this.employees = []
-      this.selectedEmployee = null
+    clearUsers() {
+      this.users = []
+      this.selectedUser = null
       this.pagination = {
         currentPage: 1,
         totalPages: 1,
@@ -249,7 +249,7 @@ export const useUsersStore = defineStore('employees', {
 
     // Refresh current page
     async refresh() {
-      await this.fetchEmployees(this.pagination.currentPage, this.pagination.itemsPerPage)
+      await this.fetchUsers(this.pagination.currentPage, this.pagination.itemsPerPage)
     }
   }
 })

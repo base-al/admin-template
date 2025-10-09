@@ -5,9 +5,9 @@
         <!-- Page Header -->
         <div class="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
           <div class="space-y-1">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Employees</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Users</h1>
             <p class="text-sm text-gray-600 dark:text-gray-400">
-              Manage your team members and their access permissions
+              Manage team members and their access permissions
             </p>
           </div>
 
@@ -15,10 +15,10 @@
           <div class="flex gap-4">
             <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center min-w-[90px]">
               <div class="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                {{ employees?.length || 0 }}
+                {{ users?.length || 0 }}
               </div>
               <div class="text-xs font-medium text-blue-600 dark:text-blue-400">
-                Total Employees
+                Total Users
               </div>
             </div>
 
@@ -33,79 +33,62 @@
           </div>
         </div>
 
-        <!-- Search and Filters -->
-        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-          <div class="flex-1 max-w-sm">
-            <UInput
-              v-model="searchQuery"
-              placeholder="Search employees..."
-              icon="i-lucide-search"
-              :loading="pending"
-            />
-          </div>
+        <!-- Users Table -->
+        <UCard>
+          <BaseTable
+            :data="users"
+            :columns="columns"
+            :loading="loading"
+            table-name="Users"
+            search-column="first_name"
+            search-placeholder="Search users by name, email, or username..."
+            :pagination="{
+              current_page: pagination.currentPage,
+              per_page: pagination.itemsPerPage,
+              total: pagination.totalItems
+            }"
+            :additional-filters="additionalFilters"
+            :context-menu-items="getContextMenuItems"
+            :on-row-click="handleRowClick"
+            @page-change="handlePageChange"
+            @per-page-change="handlePerPageChange"
+          >
+            <!-- Bulk Actions -->
+            <template #bulk-actions="{ selectedRows }">
+              <CommonPermissionButton
+                permission="user:delete"
+                icon="i-lucide-trash-2"
+                color="error"
+                size="sm"
+                @click="handleBulkDelete(selectedRows)"
+              >
+                Delete Selected
+              </CommonPermissionButton>
+            </template>
+          </BaseTable>
+        </UCard>
 
-          <div class="flex gap-2">
-            <USelect
-              v-model="roleFilter"
-              :items="roleFilterOptions"
-              placeholder="Filter by role"
-              class="w-40"
-            />
-
-            <CommonPermissionButton
-              permission="employee:create"
-              icon="i-lucide-plus"
-              @click="handleCreateEmployee"
-            >
-              Add Employee
-            </CommonPermissionButton>
-          </div>
-        </div>
-
-
-        <!-- Employees Table -->
-        <div v-if="!pending && filteredEmployees.length > 0" class="w-full">
-          <UTable 
-            :data="filteredEmployees"
-            :columns="employeeColumns"
-            class="w-full"
-          />
-        </div>
-
-        <!-- Loading State -->
-        <div v-else-if="pending" class="flex justify-center py-12">
-          <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-gray-400" />
-        </div>
-
-        <!-- Empty State -->
-        <div v-else class="flex flex-col items-center justify-center py-12 gap-3">
-          <UIcon name="i-lucide-users" class="w-12 h-12 text-gray-400 dark:text-gray-500" />
-          <p class="text-lg text-gray-500 dark:text-gray-400">No employees found</p>
-          <p class="text-sm text-gray-400 dark:text-gray-500">Get started by adding your first employee.</p>
-        </div>
-
-        <!-- Employee Form Modal -->
-        <EmployeesFormModal
-          v-model="showEmployeeModal"
-          :mode="employeeModalMode"
-          :employee="selectedEmployee"
+        <!-- User Form Modal -->
+        <UsersFormModal
+          v-model="showUserModal"
+          :mode="userModalMode"
+          :user="selectedUser"
           :roles="roles"
           :loading="submitting"
-          @submit="handleEmployeeSubmit"
+          @submit="handleUserSubmit"
         />
 
         <!-- Delete Confirmation Modal -->
         <CommonConfirmationModal
           v-model="showDeleteConfirm"
-          title="Delete Employee"
-          :message="selectedEmployee ? `Are you sure you want to delete employee &quot;${selectedEmployee.first_name} ${selectedEmployee.last_name}&quot;?` : 'Are you sure you want to delete this employee?'"
-          :details="selectedEmployee ? `Email: ${selectedEmployee.email}` : ''"
-          confirm-text="Delete Employee"
+          title="Delete User"
+          :message="selectedUser ? `Are you sure you want to delete user &quot;${selectedUser.first_name} ${selectedUser.last_name}&quot;?` : 'Are you sure you want to delete this user?'"
+          :details="selectedUser ? `Email: ${selectedUser.email}` : ''"
+          confirm-text="Delete User"
           confirm-color="error"
           :loading="submitting"
-          @confirm="confirmDeleteEmployee"
+          @confirm="confirmDeleteUser"
         />
-  
       </div>
     </template>
   </UDashboardPanel>
@@ -113,24 +96,17 @@
 
 <script setup lang="ts">
 import { h, resolveComponent } from 'vue'
-import type { TableColumn } from '@nuxt/ui'
-import type { Employee, Role } from '~/types'
-
-// Define table cell context type
-interface TableCellContext<T = unknown> {
-  row: {
-    original: T
-  }
-}
+import type { TableColumn, ContextMenuItem } from '@nuxt/ui'
+import type { User, Role, CreateUserRequest, UpdateUserRequest } from '~/types'
 
 // Resolve UI components for h() usage
 const UIcon = resolveComponent('UIcon')
 const UBadge = resolveComponent('UBadge')
-const CommonPermissionButton = resolveComponent('CommonPermissionButton')
 
 // ===== COMPOSABLES =====
 const toast = useToast()
-const employeesStore = useUsersStore()
+const usersStore = useUsersStore()
+const { formatDate } = useDateFormat()
 
 // ===== SERVER-SIDE DATA FETCHING =====
 const api = useApi()
@@ -150,161 +126,200 @@ const fetchRoles = async () => {
 }
 
 await fetchRoles()
+await usersStore.fetchUsers()
 
-// Load employees from store
-await employeesStore.fetchEmployees()
+// ===== REACTIVE STATE =====
+const showUserModal = ref(false)
+const showDeleteConfirm = ref(false)
+const userModalMode = ref<'create' | 'edit'>('create')
+const selectedUser = ref<User | null>(null)
+const submitting = ref(false)
+const roleFilter = ref<string>('all')
 
 // ===== COMPUTED DATA =====
-const employees = computed(() => employeesStore.employees)
-
+const users = computed(() => usersStore.usersWithDisplayName)
 const roles = computed(() => {
   if (!rolesData.value) return []
   return Array.isArray(rolesData.value) ? rolesData.value : rolesData.value.data || []
 })
-
-const pending = computed(() => employeesStore.isLoading || rolesPending.value)
+const loading = computed(() => usersStore.isLoading || rolesPending.value)
+const pagination = computed(() => usersStore.pagination)
 
 // ===== TABLE CONFIGURATION =====
-const employeeColumns: TableColumn<Employee>[] = [
+const columns: TableColumn<User>[] = [
   {
     accessorKey: 'first_name',
     header: 'Name',
-    cell: (ctx: TableCellContext<Employee>) => {
-      const employee = ctx.row.original as Employee
+    cell: ({ row }: { row: { original: User } }) => {
+      const user = row.original
       return h('div', { class: 'flex items-center gap-3' }, [
         h('div', { class: 'w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center' }, [
           h(UIcon, { name: 'i-lucide-user', class: 'w-4 h-4 text-primary-600 dark:text-primary-400' })
         ]),
         h('div', {}, [
-          h('div', { class: 'font-medium text-gray-900 dark:text-gray-100' }, `${employee.first_name} ${employee.last_name}`),
-          h('div', { class: 'text-sm text-gray-500 dark:text-gray-400' }, `@${employee.username}`)
+          h('div', { class: 'font-medium text-gray-900 dark:text-gray-100' }, user.name || `${user.first_name} ${user.last_name}`.trim()),
+          h('div', { class: 'text-sm text-gray-500 dark:text-gray-400' }, `@${user.username}`)
         ])
       ])
     }
   },
   {
     accessorKey: 'email',
-    header: 'Email'
-  },
-  {
-    accessorKey: 'phone',
-    header: 'Phone',
-    cell: (ctx: TableCellContext<Employee>) => (ctx.row.original as Employee).phone || '-'
+    header: 'Contact',
+    cell: ({ row }: { row: { original: User } }) => {
+      const user = row.original
+      return h('div', { class: 'flex flex-col' }, [
+        h('span', { class: 'text-sm' }, user.email),
+        user.phone ? h('span', { class: 'text-xs text-gray-500 dark:text-gray-400' }, user.phone) : null
+      ].filter(Boolean))
+    }
   },
   {
     accessorKey: 'role_id',
     header: 'Role',
-    cell: (ctx: TableCellContext<Employee>) => {
-      const employee = ctx.row.original as Employee
-      if (employee.role) {
-        return h(UBadge, { 
-          class: 'capitalize', 
-          variant: 'subtle', 
-          color: 'primary' 
-        }, () => employee.role!.name)
+    cell: ({ row }: { row: { original: User } }) => {
+      const user = row.original
+      if (user.role) {
+        return h(UBadge, {
+          class: 'capitalize',
+          variant: 'soft',
+          color: 'info'
+        }, () => user.role!.name)
       }
-      return 'No role assigned'
+      return h('span', { class: 'text-sm text-gray-500' }, 'No role')
     }
   },
   {
-    accessorKey: 'id',
-    header: 'Actions',
-    cell: (ctx: TableCellContext<Employee>) => {
-      const employee = ctx.row.original as Employee
-      return h('div', { class: 'flex items-center gap-1' }, [
-        h(CommonPermissionButton, {
-          permission: 'employee:read',
-          icon: 'i-lucide-eye',
-          size: 'xs',
-          color: 'neutral',
-          variant: 'ghost',
-          onClick: () => viewEmployee(employee)
-        }),
-        h(CommonPermissionButton, {
-          permission: 'employee:delete',
-          icon: 'i-lucide-trash-2',
-          size: 'xs', 
-          color: 'error',
-          variant: 'ghost',
-          onClick: () => deleteEmployee(employee)
-        })
-      ])
+    accessorKey: 'last_login',
+    header: 'Last Login',
+    cell: ({ row }: { row: { original: User } }) => {
+      const user = row.original
+      if (user.last_login) {
+        return h('span', { class: 'text-sm' }, formatDate(user.last_login))
+      }
+      return h('span', { class: 'text-sm text-gray-500' }, 'Never')
+    }
+  },
+  {
+    accessorKey: 'created_at',
+    header: 'Created',
+    cell: ({ row }: { row: { original: User } }) => {
+      return h('span', { class: 'text-sm' }, formatDate(row.original.created_at))
     }
   }
 ]
 
-// ===== REACTIVE STATE =====
-const searchQuery = ref('')
-const roleFilter = ref<number | null>(null)
-const showEmployeeModal = ref(false)
-const showDeleteConfirm = ref(false)
-const employeeModalMode = ref<'create' | 'edit'>('create')
-const selectedEmployee = ref<Employee | null>(null)
-// Removed unused selectedRole variable
-const submitting = ref(false)
-
-
-// ===== COMPUTED PROPERTIES =====
-const filteredEmployees = computed(() => {
-  let filtered = [...employees.value]
-
-  // Search filter
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(emp =>
-      `${emp.first_name} ${emp.last_name}`.toLowerCase().includes(query) ||
-      emp.email.toLowerCase().includes(query) ||
-      emp.username.toLowerCase().includes(query) ||
-      emp.role?.name?.toLowerCase().includes(query)
-    )
-  }
-
-  // Role filter
-  if (roleFilter.value !== null) {
-    filtered = filtered.filter(emp => emp.role_id === roleFilter.value)
-  }
-
-  return filtered
-})
-
+// ===== FILTERS =====
 const roleFilterOptions = computed(() => {
-  const uniqueRoles = [...new Set(employees.value.map(emp => ({
-    id: emp.role_id,
-    name: emp.role?.name || 'Unknown Role'
-  })).filter(role => role.name !== 'Unknown Role'))]
+  const uniqueRoles = [...new Map(
+    users.value
+      .filter(user => user.role)
+      .map(user => [user.role_id, user.role!])
+  ).values()]
 
   return [
-    { label: 'All Roles', value: null },
+    { label: 'All Roles', value: 'all' },
     ...uniqueRoles.map(role => ({
       label: role.name,
-      value: role.id
+      value: role.id.toString()
     }))
   ]
 })
 
-// Removed unused roleOptions computed property
+const additionalFilters = computed(() => [
+  {
+    key: 'role_id',
+    value: roleFilter.value,
+    options: roleFilterOptions.value,
+    placeholder: 'Filter by role',
+    class: 'min-w-40'
+  }
+])
 
+// ===== CONTEXT MENU & PERMISSIONS =====
+const getContextMenuItems = (row: User): ContextMenuItem[] => {
+  const items: ContextMenuItem[] = []
 
+  items.push({
+    label: 'View Details',
+    icon: 'i-lucide-eye',
+    click: () => handleView(row)
+  })
 
-// ===== METHODS =====
-const handleCreateEmployee = () => {
-  selectedEmployee.value = null
-  employeeModalMode.value = 'create'
-  showEmployeeModal.value = true
+  items.push({
+    label: 'Edit User',
+    icon: 'i-lucide-pencil',
+    click: () => handleEdit(row)
+  })
+
+  items.push({
+    label: 'Delete User',
+    icon: 'i-lucide-trash-2',
+    click: () => handleDelete(row)
+  })
+
+  return items
 }
 
-const viewEmployee = (employee: Employee) => {
-  navigateTo(`/app/users/${employee.id}`)
+// ===== EVENT HANDLERS =====
+const handleRowClick = (row: User) => {
+  navigateTo(`/app/users/${row.id}`)
 }
 
+const handleView = (user: User) => {
+  navigateTo(`/app/users/${user.id}`)
+}
 
-const deleteEmployee = (employee: Employee) => {
-  selectedEmployee.value = employee
+const handleEdit = (user: User) => {
+  selectedUser.value = user
+  userModalMode.value = 'edit'
+  showUserModal.value = true
+}
+
+const handleDelete = (user: User) => {
+  selectedUser.value = user
   showDeleteConfirm.value = true
 }
 
+const handleBulkDelete = async (selectedRows: Record<string, boolean>) => {
+  const selectedIds = Object.keys(selectedRows).map(key => parseInt(key))
 
-interface EmployeeFormData {
+  if (selectedIds.length === 0) return
+
+  const confirmed = confirm(`Are you sure you want to delete ${selectedIds.length} user(s)?`)
+  if (!confirmed) return
+
+  submitting.value = true
+  try {
+    await Promise.all(selectedIds.map(id => usersStore.deleteUser(id)))
+
+    toast.add({
+      title: 'Success',
+      description: `${selectedIds.length} user(s) deleted successfully`
+    })
+
+    await usersStore.fetchUsers()
+  } catch (error) {
+    console.error('Bulk delete failed:', error)
+    toast.add({
+      title: 'Error',
+      description: 'Failed to delete users'
+    })
+  } finally {
+    submitting.value = false
+  }
+}
+
+const handlePageChange = (page: number) => {
+  usersStore.fetchUsers(page, pagination.value.itemsPerPage)
+}
+
+const handlePerPageChange = (perPage: number) => {
+  usersStore.fetchUsers(1, perPage)
+}
+
+// ===== USER CRUD OPERATIONS =====
+interface UserFormData {
   first_name: string
   last_name: string
   username: string
@@ -312,20 +327,22 @@ interface EmployeeFormData {
   phone?: string
   role_id: number
   password?: string
+  changePassword?: boolean
+  oldPassword?: string
 }
 
-const handleEmployeeSubmit = async (submitData: EmployeeFormData & { changePassword?: boolean, oldPassword?: string }) => {
+const handleUserSubmit = async (submitData: UserFormData) => {
   submitting.value = true
 
   try {
     let result
-    
-    if (employeeModalMode.value === 'create') {
-      // For create, password is required
+
+    if (userModalMode.value === 'create') {
       if (!submitData.password) {
-        throw new Error('Password is required for new employees')
+        throw new Error('Password is required for new users')
       }
-      const createData = {
+
+      const createData: CreateUserRequest = {
         first_name: submitData.first_name,
         last_name: submitData.last_name,
         username: submitData.username,
@@ -334,10 +351,10 @@ const handleEmployeeSubmit = async (submitData: EmployeeFormData & { changePassw
         role_id: submitData.role_id,
         password: submitData.password
       }
-      result = await employeesStore.createEmployee(createData)
-    } else if (selectedEmployee.value) {
-      // For update, exclude password from employee update
-      const updateData = {
+
+      result = await usersStore.createUser(createData)
+    } else if (selectedUser.value) {
+      const updateData: UpdateUserRequest = {
         first_name: submitData.first_name,
         last_name: submitData.last_name,
         username: submitData.username,
@@ -345,81 +362,78 @@ const handleEmployeeSubmit = async (submitData: EmployeeFormData & { changePassw
         phone: submitData.phone,
         role_id: submitData.role_id
       }
-      result = await employeesStore.updateEmployee(selectedEmployee.value.id, updateData)
-      
+
+      result = await usersStore.updateUser(selectedUser.value.id, updateData)
+
       // Handle password change separately if requested
       if (submitData.changePassword && submitData.password && submitData.oldPassword) {
-        const passwordResult = await employeesStore.changeEmployeePassword(
-          selectedEmployee.value.id,
+        const passwordResult = await usersStore.changeUserPassword(
+          selectedUser.value.id,
           submitData.password,
           submitData.oldPassword
         )
-        
+
         if (!passwordResult.success) {
           toast.add({
             title: 'Warning',
-            description: 'Employee updated but password change failed: ' + passwordResult.error
+            description: 'User updated but password change failed: ' + passwordResult.error
           })
         }
       }
     }
 
     if (result?.success) {
-      showEmployeeModal.value = false
-
-      // Refresh employees list
-      await employeesStore.fetchEmployees()
+      showUserModal.value = false
+      await usersStore.fetchUsers()
 
       toast.add({
         title: 'Success',
-        description: `Employee ${employeeModalMode.value === 'create' ? 'created' : 'updated'} successfully`
+        description: `User ${userModalMode.value === 'create' ? 'created' : 'updated'} successfully`
       })
     } else {
       toast.add({
         title: 'Error',
-        description: result?.error || `Failed to ${employeeModalMode.value} employee`
+        description: result?.error || `Failed to ${userModalMode.value} user`
       })
     }
   } catch (error) {
-    console.error('Employee operation failed:', error)
+    console.error('User operation failed:', error)
     toast.add({
       title: 'Error',
-      description: `Failed to ${employeeModalMode.value} employee`
+      description: `Failed to ${userModalMode.value} user`
     })
   } finally {
     submitting.value = false
   }
 }
 
-const confirmDeleteEmployee = async () => {
-  if (!selectedEmployee.value) return
+const confirmDeleteUser = async () => {
+  if (!selectedUser.value) return
 
   submitting.value = true
 
   try {
-    const result = await employeesStore.deleteEmployee(selectedEmployee.value.id)
+    const result = await usersStore.deleteUser(selectedUser.value.id)
 
     if (result.success) {
       showDeleteConfirm.value = false
-
-      // Refresh employees list
-      await employeesStore.fetchEmployees()
+      await usersStore.fetchUsers()
 
       toast.add({
         title: 'Success',
-        description: 'Employee deleted successfully'
+        description: 'User deleted successfully'
       })
     } else {
       toast.add({
         title: 'Error',
-        description: result.error || 'Failed to delete employee'
+        description: result.error || 'Failed to delete user'
       })
     }
   } catch (error) {
     console.error('Delete failed:', error)
     toast.add({
       title: 'Error',
-      description: 'Failed to delete employee'
+      description: 'Failed to delete user'
     })
   } finally {
     submitting.value = false

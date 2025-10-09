@@ -3,7 +3,7 @@
 // Authorization types moved to authorization.ts for better organization
 import type { Role } from './authorization'
 
-export interface Employee {
+export interface User {
   id: number
   created_at: string
   updated_at: string
@@ -20,7 +20,7 @@ export interface Employee {
   last_login?: string
 }
 
-export interface CreateEmployeeRequest {
+export interface CreateUserRequest {
   first_name: string
   last_name: string
   username: string
@@ -30,7 +30,7 @@ export interface CreateEmployeeRequest {
   password: string
 }
 
-export interface UpdateEmployeeRequest {
+export interface UpdateUserRequest {
   first_name?: string
   last_name?: string
   username?: string
@@ -40,12 +40,12 @@ export interface UpdateEmployeeRequest {
   password?: string
 }
 
-export interface EmployeeSelectOption {
+export interface UserSelectOption {
   id: number
   name: string
 }
 
-export interface EmployeeListResponse {
+export interface UserListResponse {
   id: number
   created_at: string
   updated_at: string
@@ -60,14 +60,14 @@ export interface EmployeeListResponse {
 }
 
 // Table row types for type-safe table components
-export interface EmployeeTableRow extends Employee {
+export interface UserTableRow extends User {
   display_name?: string
   full_name?: string
 }
 
 // API Response types
-export interface EmployeeResponse {
-  data: Employee[]
+export interface UserResponse {
+  data: User[]
   pagination?: {
     total: number
     page: number
@@ -76,8 +76,8 @@ export interface EmployeeResponse {
   }
 }
 
-export interface SingleEmployeeResponse {
-  data: Employee
+export interface SingleUserResponse {
+  data: User
 }
 
 

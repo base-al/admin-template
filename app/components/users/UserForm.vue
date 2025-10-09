@@ -115,7 +115,7 @@
       </label>
       <div class="flex items-center space-x-4">
         <UAvatar
-          :src="formData.avatar_url || employee?.avatar_url"
+          :src="formData.avatar_url || user?.avatar_url"
           :alt="formData.first_name"
           size="lg"
         />
@@ -138,10 +138,10 @@
         class="justify-center"
       >
         <template v-if="mode === 'create'">
-          Create Employee
+          Create User
         </template>
         <template v-else>
-          Update Employee
+          Update User
         </template>
       </UButton>
 
@@ -157,13 +157,13 @@
       <div class="flex-1" />
 
       <UButton
-        v-if="mode === 'edit' && employee && canDeleteEmployee"
+        v-if="mode === 'edit' && user && canDeleteUser"
         color="error"
         variant="outline"
         :disabled="loading"
         @click="handleDelete"
       >
-        Delete Employee
+        Delete User
       </UButton>
     </div>
   </UForm>
@@ -171,31 +171,31 @@
 
 <script setup lang="ts">
 import { z } from 'zod'
-import type { Employee, CreateEmployeeRequest, UpdateEmployeeRequest, Role } from '~/types'
+import type { User, CreateUserRequest, UpdateUserRequest, Role } from '~/types'
 
 // ===== PROPS =====
 interface Props {
   mode: 'create' | 'edit'
-  employee?: Employee | null
+  user?: User | null
   roles?: Role[]
   loading?: boolean
   enableAvatarUpload?: boolean
-  canDeleteEmployee?: boolean
+  canDeleteUser?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  employee: null,
+  user: null,
   roles: () => [],
   loading: false,
   enableAvatarUpload: false,
-  canDeleteEmployee: false
+  canDeleteUser: false
 })
 
 // ===== EMITS =====
 interface Emits {
-  'submit': [data: CreateEmployeeRequest | UpdateEmployeeRequest]
+  'submit': [data: CreateUserRequest | UpdateUserRequest]
   'cancel': []
-  'delete': [employee: Employee]
+  'delete': [user: User]
   'avatar-upload': [file: File]
 }
 
@@ -280,14 +280,14 @@ const isFormValid = computed(() => {
 
 // ===== METHODS =====
 const populateForm = () => {
-  if (props.employee && props.mode === 'edit') {
-    formData.first_name = props.employee.first_name
-    formData.last_name = props.employee.last_name
-    formData.username = props.employee.username
-    formData.email = props.employee.email
-    formData.phone = props.employee.phone || ''
-    formData.role_id = props.employee.role_id
-    formData.avatar_url = props.employee.avatar_url || ''
+  if (props.user && props.mode === 'edit') {
+    formData.first_name = props.user.first_name
+    formData.last_name = props.user.last_name
+    formData.username = props.user.username
+    formData.email = props.user.email
+    formData.phone = props.user.phone || ''
+    formData.role_id = props.user.role_id
+    formData.avatar_url = props.user.avatar_url || ''
     // Don't populate password fields in edit mode
     formData.password = ''
     formData.password_confirmation = ''
@@ -312,7 +312,7 @@ const resetForm = () => {
 const handleSubmit = async () => {
   if (!isFormValid.value) return
 
-  const submitData: CreateEmployeeRequest | UpdateEmployeeRequest = {
+  const submitData: CreateUserRequest | UpdateUserRequest = {
     first_name: formData.first_name,
     last_name: formData.last_name,
     username: formData.username,
@@ -323,7 +323,7 @@ const handleSubmit = async () => {
 
   // Include password only if it's create mode or password is being changed
   if (props.mode === 'create' || (showPasswordFields.value && formData.password)) {
-    (submitData as CreateEmployeeRequest).password = formData.password
+    (submitData as CreateUserRequest).password = formData.password
   }
 
   emit('submit', submitData)
@@ -340,8 +340,8 @@ const handleCancel = () => {
 }
 
 const handleDelete = () => {
-  if (props.employee) {
-    emit('delete', props.employee)
+  if (props.user) {
+    emit('delete', props.user)
   }
 }
 
@@ -362,7 +362,7 @@ const handleAvatarUpload = () => {
 }
 
 // ===== WATCHERS =====
-watch(() => props.employee, populateForm, { immediate: true })
+watch(() => props.user, populateForm, { immediate: true })
 watch(() => props.mode, () => {
   if (props.mode === 'create') {
     resetForm()

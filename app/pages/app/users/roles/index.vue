@@ -53,7 +53,7 @@
           <CommonPermissionButton
             permission="role:create"
             icon="i-lucide-plus"
-            @click="navigateTo('/app/users/roles/new')"
+            @click="handleCreateRole"
           >
             Create Role
           </CommonPermissionButton>
@@ -72,6 +72,15 @@
         />
 
       </div>
+
+        <!-- Role Form Modal -->
+        <UsersRoleFormModal
+          v-model="showRoleModal"
+          :mode="roleModalMode"
+          :role="selectedRole"
+          :loading="submitting"
+          @submit="handleRoleSubmit"
+        />
 
         <!-- Delete Confirmation Modal -->
         <CommonConfirmationModal
@@ -176,7 +185,9 @@ const pending = computed(() => rolesPending.value || permissionsPending.value)
 
 // ===== REACTIVE STATE =====
 const searchQuery = ref('')
+const showRoleModal = ref(false)
 const showDeleteConfirm = ref(false)
+const roleModalMode = ref<'create' | 'edit'>('create')
 const selectedRole = ref<Role | null>(null)
 const submitting = ref(false)
 
@@ -281,15 +292,20 @@ const filteredRoles = computed(() => {
 
 
 // ===== METHODS =====
-// Navigate to dedicated create page instead of modal
+const handleCreateRole = () => {
+  selectedRole.value = null
+  roleModalMode.value = 'create'
+  showRoleModal.value = true
+}
 
 const viewRole = (role: Role) => {
-  // For now, just edit - can add view-only modal later
-  editRole(role)
+  navigateTo(`/app/users/roles/${role.id}`)
 }
 
 const editRole = (role: Role) => {
-  navigateTo(`/app/users/roles/${role.id}/edit`)
+  selectedRole.value = role
+  roleModalMode.value = 'edit'
+  showRoleModal.value = true
 }
 
 const deleteRole = (role: Role) => {
@@ -298,11 +314,46 @@ const deleteRole = (role: Role) => {
 }
 
 const managePermissions = (role: Role) => {
-  // Navigate to permissions page
   navigateTo(`/app/users/roles/${role.id}/permissions`)
 }
 
+interface RoleFormData {
+  name: string
+  description?: string
+}
 
+const handleRoleSubmit = async (formData: RoleFormData) => {
+  submitting.value = true
+
+  try {
+    if (roleModalMode.value === 'create') {
+      await api.post('/authorization/roles', formData)
+
+      toast.add({
+        title: 'Success',
+        description: 'Role created successfully'
+      })
+    } else if (selectedRole.value) {
+      await api.put(`/authorization/roles/${selectedRole.value.id}`, formData)
+
+      toast.add({
+        title: 'Success',
+        description: 'Role updated successfully'
+      })
+    }
+
+    showRoleModal.value = false
+    await refreshRoles()
+  } catch (error) {
+    console.error('Role operation failed:', error)
+    toast.add({
+      title: 'Error',
+      description: `Failed to ${roleModalMode.value} role`
+    })
+  } finally {
+    submitting.value = false
+  }
+}
 
 const confirmDeleteRole = async () => {
   if (!selectedRole.value) return

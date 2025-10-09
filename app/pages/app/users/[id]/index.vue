@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { Employee, UpdateEmployeeRequest } from '~/types/employee'
+import type { Employee, UpdateUserRequest } from '~/types/user'
 
 definePageMeta({
   title: 'Employee Details',
@@ -131,7 +131,7 @@ async function updatePersonalInfo(event: FormSubmitEvent<PersonalSchema>) {
   try {
     console.log('Sending personal update:', event.data)
     
-    const result = await employeesStore.updateEmployee(employee.value.id, event.data as UpdateEmployeeRequest)
+    const result = await employeesStore.updateEmployee(employee.value.id, event.data as UpdateUserRequest)
     
     if (result.success) {
       toast.add({
@@ -207,7 +207,7 @@ async function updateRole(event: FormSubmitEvent<RoleSchema>) {
   isSubmittingRole.value = true
   
   try {
-    const result = await employeesStore.updateEmployee(employee.value.id, event.data as UpdateEmployeeRequest)
+    const result = await employeesStore.updateEmployee(employee.value.id, event.data as UpdateUserRequest)
     
     if (result.success) {
       toast.add({
