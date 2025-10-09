@@ -40,7 +40,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       description: 'Role created successfully',
       color: 'success'
     })
-    await router.push(`/app/employees/roles/${response.data.id}`)
+    await router.push(`/app/users/roles/${response.data.id}`)
   } catch (error: unknown) {
     toast.add({
       title: 'Error',

@@ -48,7 +48,7 @@ watch(role, (newRole) => {
       description: 'System roles cannot be edited',
       color: 'error'
     })
-    router.push(`/app/employees/roles/${roleId.value}`)
+    router.push(`/app/users/roles/${roleId.value}`)
   }
 }, { immediate: true })
 
@@ -91,7 +91,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       description: 'Role updated successfully',
       color: 'success'
     })
-    await router.push(`/app/employees/roles/${role.value.id}`)
+    await router.push(`/app/users/roles/${role.value.id}`)
   } catch (error: unknown) {
     toast.add({
       title: 'Error',
@@ -208,7 +208,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                     size="xs"
                     color="primary"
                     class="mt-2"
-                    @click="navigateTo(`/app/employees/roles/${role?.id}/permissions`)"
+                    @click="navigateTo(`/app/users/roles/${role?.id}/permissions`)"
                   />
                 </div>
               </div>
@@ -244,7 +244,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             <UButton
               label="View Role Details"
               class="mt-4"
-              @click="router.push(`/app/employees/roles/${role.id}`)"
+              @click="router.push(`/app/users/roles/${role.id}`)"
             />
           </div>
         </UCard>
@@ -257,7 +257,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         <UButton
           label="Back to Roles"
           class="mt-4"
-          @click="router.push('/app/employees/roles')"
+          @click="router.push('/app/users/roles')"
         />
       </div>
     </template>

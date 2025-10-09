@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const employeesStore = useEmployeesStore()
+const employeesStore = useUsersStore()
 
 // Load data on component mount
 onMounted(async () => {
@@ -36,7 +36,7 @@ const recentActivities = computed<ActivityItem[]>(() => {
       timestamp: employee.created_at,
       icon: 'i-lucide-user-plus',
       iconColor: 'text-blue-500',
-      href: `/app/employees/${employee.id}`
+      href: `/app/users/${employee.id}`
     })
   })
 

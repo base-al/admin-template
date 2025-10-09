@@ -53,7 +53,7 @@
           <CommonPermissionButton
             permission="role:create"
             icon="i-lucide-plus"
-            @click="navigateTo('/app/employees/roles/new')"
+            @click="navigateTo('/app/users/roles/new')"
           >
             Create Role
           </CommonPermissionButton>
@@ -289,7 +289,7 @@ const viewRole = (role: Role) => {
 }
 
 const editRole = (role: Role) => {
-  navigateTo(`/app/employees/roles/${role.id}/edit`)
+  navigateTo(`/app/users/roles/${role.id}/edit`)
 }
 
 const deleteRole = (role: Role) => {
@@ -299,7 +299,7 @@ const deleteRole = (role: Role) => {
 
 const managePermissions = (role: Role) => {
   // Navigate to permissions page
-  navigateTo(`/app/employees/roles/${role.id}/permissions`)
+  navigateTo(`/app/users/roles/${role.id}/permissions`)
 }
 
 

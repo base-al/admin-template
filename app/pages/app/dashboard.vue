@@ -28,7 +28,7 @@ const items = computed<DropdownMenuItem[][]>(() => {
     actions.push({
       label: 'New employee',
       icon: 'i-lucide-users',
-      to: '/app/employees'
+      to: '/app/users'
     })
   }
 

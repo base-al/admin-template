@@ -15,7 +15,7 @@
               icon="i-lucide-users"
               color="primary"
               variant="ghost"
-              to="/app/employees"
+              to="/app/users"
               size="sm"
             >
               Employees
@@ -25,7 +25,7 @@
               icon="i-lucide-shield"
               color="primary"
               variant="ghost"
-              to="/app/employees/roles"
+              to="/app/users/roles"
               size="sm"
             >
               Roles
@@ -35,7 +35,7 @@
               icon="i-lucide-key"
               color="primary"
               variant="ghost"
-              to="/app/employees/roles/permissions"
+              to="/app/users/roles/permissions"
               size="sm"
             >
               Permissions

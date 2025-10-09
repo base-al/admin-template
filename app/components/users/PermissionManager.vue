@@ -210,7 +210,7 @@ interface Emits {
 const emit = defineEmits<Emits>()
 
 // ===== COMPOSABLES =====
-const employeeModule = useEmployeeModule()
+const employeeModule = useUserModule()
 
 // ===== REACTIVE STATE =====
 const searchQuery = ref('')

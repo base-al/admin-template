@@ -172,7 +172,7 @@ const emit = defineEmits<Emits>()
 
 // ===== COMPOSABLES =====
 const { formatDate } = useDateFormat()
-const employeesStore = useEmployeesStore()
+const employeesStore = useUsersStore()
 const authorizationStore = useAuthorizationStore()
 
 // ===== REACTIVE STATE =====

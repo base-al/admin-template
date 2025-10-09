@@ -17,7 +17,7 @@ interface EmployeesState {
   }
 }
 
-export const useEmployeesStore = defineStore('employees', {
+export const useUsersStore = defineStore('employees', {
   state: (): EmployeesState => ({
     employees: [],
     selectedEmployee: null,

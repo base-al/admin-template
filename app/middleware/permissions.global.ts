@@ -16,15 +16,15 @@ export default defineNuxtRouteMiddleware(async (to) => {
   // Define route permission mappings
   const routePermissions: Record<string, { resource: string; action: string }> = {
     // Employee routes
-    '/app/employees': { resource: 'employee', action: 'list' },
-    '/app/employees/new': { resource: 'employee', action: 'create' },
+    '/app/users': { resource: 'employee', action: 'list' },
+    '/app/users/new': { resource: 'employee', action: 'create' },
     
     // Role routes
-    '/app/employees/roles': { resource: 'role', action: 'list' },
-    '/app/employees/roles/new': { resource: 'role', action: 'create' },
+    '/app/users/roles': { resource: 'role', action: 'list' },
+    '/app/users/roles/new': { resource: 'role', action: 'create' },
     
     // Permission routes  
-    '/app/employees/roles/permissions': { resource: 'permission', action: 'list' },
+    '/app/users/roles/permissions': { resource: 'permission', action: 'list' },
     
     // Customer routes
     '/app/customers': { resource: 'customer', action: 'list' },

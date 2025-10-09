@@ -130,7 +130,7 @@ const CommonPermissionButton = resolveComponent('CommonPermissionButton')
 
 // ===== COMPOSABLES =====
 const toast = useToast()
-const employeesStore = useEmployeesStore()
+const employeesStore = useUsersStore()
 
 // ===== SERVER-SIDE DATA FETCHING =====
 const api = useApi()
@@ -294,7 +294,7 @@ const handleCreateEmployee = () => {
 }
 
 const viewEmployee = (employee: Employee) => {
-  navigateTo(`/app/employees/${employee.id}`)
+  navigateTo(`/app/users/${employee.id}`)
 }
 
 

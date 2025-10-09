@@ -65,7 +65,7 @@ const handleDelete = async () => {
     const api = useApi()
     try {
       await api.delete(`/authorization/roles/${role.value.id}`)
-      await router.push('/app/employees/roles')
+      await router.push('/app/users/roles')
     } catch (error) {
       console.error('Error deleting role:', error)
     }
@@ -103,7 +103,7 @@ const groupedPermissions = computed(() => {
             icon="i-lucide-arrow-left"
             color="neutral"
             variant="ghost"
-            @click="router.push('/app/employees/roles')"
+            @click="router.push('/app/users/roles')"
           >
             Back to Roles
           </UButton>
@@ -116,7 +116,7 @@ const groupedPermissions = computed(() => {
               permission="role:update"
               icon="i-lucide-pencil"
               color="primary"
-              @click="router.push(`/app/employees/roles/${role.id}/edit`)"
+              @click="router.push(`/app/users/roles/${role.id}/edit`)"
             >
               Edit
             </CommonPermissionButton>
@@ -250,7 +250,7 @@ const groupedPermissions = computed(() => {
               label="Manage Permissions"
               size="sm"
               class="mt-3"
-              @click="navigateTo(`/app/employees/roles/${role.id}/permissions`)"
+              @click="navigateTo(`/app/users/roles/${role.id}/permissions`)"
             />
           </div>
         </UCard>
@@ -274,7 +274,7 @@ const groupedPermissions = computed(() => {
         <UButton
           label="Back to Roles"
           class="mt-4"
-          @click="router.push('/app/employees/roles')"
+          @click="router.push('/app/users/roles')"
         />
       </div>
     </template>

@@ -12,7 +12,7 @@ definePageMeta({
 const { roleOptions } = useAuthorization()
 
 // Stores
-const employeesStore = useEmployeesStore()
+const employeesStore = useUsersStore()
 const toast = useToast()
 const router = useRouter()
 
@@ -55,7 +55,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         description: 'Employee created successfully',
         color: 'success'
       })
-      await router.push('/app/employees')
+      await router.push('/app/users')
     } else {
       toast.add({
         title: 'Error',

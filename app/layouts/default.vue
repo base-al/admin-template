@@ -45,7 +45,7 @@ const allLinks: CustomNavigationMenuItem[][] = [[
   },
   {
     label: 'Employees',
-    to: '/app/employees',
+    to: '/app/users',
     icon: 'i-lucide-users',
     permission: 'employee:list',
     onSelect: () => {

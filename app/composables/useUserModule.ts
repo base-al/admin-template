@@ -35,7 +35,7 @@ export interface EmployeeModuleState {
   error: string | null
 }
 
-export function useEmployeeModule() {
+export function useUserModule() {
   // ===== STATE =====
   const state = reactive<EmployeeModuleState>({
     employees: [],

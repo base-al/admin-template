@@ -52,7 +52,7 @@
               block
               variant="outline"
               icon="i-lucide-users"
-              to="/app/employees/new"
+              to="/app/users/new"
             >
               Add Employee
             </UButton>

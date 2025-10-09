@@ -11,7 +11,7 @@ definePageMeta({
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
-const employeesStore = useEmployeesStore()
+const employeesStore = useUsersStore()
 const { roleOptions, initialize } = useAuthorization()
 
 const employeeId = computed(() => parseInt(route.params.id as string))
@@ -263,7 +263,7 @@ const handleDelete = async () => {
   if (confirm(`Are you sure you want to delete ${employee.value.first_name} ${employee.value.last_name}?`)) {
     const result = await employeesStore.deleteEmployee(employee.value.id)
     if (result.success) {
-      await router.push('/app/employees')
+      await router.push('/app/users')
     }
   }
 }
@@ -278,7 +278,7 @@ const handleDelete = async () => {
             icon="i-lucide-arrow-left"
             color="neutral"
             variant="ghost"
-            @click="router.push('/app/employees')"
+            @click="router.push('/app/users')"
           >
             Back to Employees
           </UButton>
@@ -588,7 +588,7 @@ const handleDelete = async () => {
                     variant="outline"
                     size="sm"
                     class="w-full"
-                    @click="$router.push(`/app/employees/roles/${employee.role.id}/permissions`)"
+                    @click="$router.push(`/app/users/roles/${employee.role.id}/permissions`)"
                   >
                     Manage Role Permissions
                   </CommonPermissionButton>
@@ -644,7 +644,7 @@ const handleDelete = async () => {
         <UButton
           label="Back to Employees"
           class="mt-4"
-          @click="router.push('/app/employees')"
+          @click="router.push('/app/users')"
         />
       </div>
     </template>
